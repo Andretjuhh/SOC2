@@ -1,18 +1,28 @@
-# React + Vite
+# SOC
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+The repository is organized as a monorepo:
 
-Currently, two official plugins are available:
+- `frontend/` contains the Vite/React application, including its `package.json`,
+  lockfile, Vite configuration, HTML entry point, and `src/`.
+- `backend/` contains the backend application.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Run the frontend
 
-## React Compiler
+From the repository root in PowerShell, install the frontend dependencies and
+start Vite:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```sh
+npm.cmd --prefix frontend install
+npm.cmd --prefix frontend run dev
+```
 
-## Expanding the Oxlint configuration
+Or change into `frontend/` and run `npm.cmd install` followed by
+`npm.cmd run dev`.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+Other frontend scripts can also be run from the repository root:
 
-npm.cmd run dev
+```sh
+npm.cmd --prefix frontend run build
+npm.cmd --prefix frontend run lint
+npm.cmd --prefix frontend run preview
+```
