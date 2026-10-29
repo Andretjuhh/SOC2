@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
-import './styles/App.css'
+import AppLayout from './layouts/AppLayout.jsx'
+import Icon from './layouts/Icon.jsx'
 
 const events = [
   { time: '10:42:18', type: 'Unusual sign-in location', source: 'Identity Protection', severity: 'Critical', target: 'j.smith@acme.io', status: 'Investigating' },
@@ -10,37 +11,6 @@ const events = [
 ]
 
 const chartPoints = '0,118 40,108 80,112 120,78 160,88 200,62 240,74 280,44 320,56 360,30 400,48 440,37 480,55 520,23 560,39 600,15'
-
-function Icon({ name, size = 18 }) {
-  const paths = {
-    grid: <><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /></>,
-    shield: <><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z" /><path d="m9 12 2 2 4-4" /></>,
-    activity: <><path d="M22 12h-4l-3 9L9 3l-3 9H2" /></>,
-    search: <><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></>,
-    bell: <><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" /><path d="M10 21h4" /></>,
-    chevron: <path d="m9 18 6-6-6-6" />,
-    arrow: <><path d="M7 17 17 7" /><path d="M7 7h10v10" /></>,
-    clock: <><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></>,
-    server: <><rect x="3" y="4" width="18" height="7" rx="2" /><rect x="3" y="13" width="18" height="7" rx="2" /><path d="M7 7h.01M7 16h.01M11 7h6M11 16h6" /></>,
-    more: <><circle cx="5" cy="12" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /></>,
-  }
-
-  return (
-    <svg
-      aria-hidden="true"
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.7"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      {paths[name]}
-    </svg>
-  )
-}
 
 function App() {
   const [query, setQuery] = useState('')
@@ -59,61 +29,7 @@ function App() {
   }, [query, severityFilter])
 
   return (
-    <div className="app-shell">
-      <aside className="sidebar">
-        <a className="brand" href="#overview" aria-label="Sentinel SOC home">
-          <span className="brand-mark"><Icon name="shield" size={21} /></span>
-          <span className="brand-name">sentinel<span> / SOC</span></span>
-        </a>
-
-        <div className="workspace-label">WORKSPACE</div>
-        <button className="workspace-switcher" type="button">
-          <span className="workspace-avatar">A</span>
-          <span className="workspace-copy"><strong>Acme Corporation</strong><small>Enterprise plan</small></span>
-          <Icon name="chevron" size={15} />
-        </button>
-
-        <div className="nav-label">SECURITY OPERATIONS</div>
-        <nav className="main-nav" aria-label="Main navigation">
-          <a className="nav-link active" href="#overview"><Icon name="grid" /><span>Overview</span></a>
-          <a className="nav-link" href="#alerts"><span className="nav-icon"><Icon name="shield" /></span><span>Alerts</span><span className="nav-count">12</span></a>
-          <a className="nav-link" href="#activity"><Icon name="activity" /><span>Activity</span></a>
-          <a className="nav-link" href="#assets"><Icon name="server" /><span>Assets</span></a>
-        </nav>
-
-        <div className="sidebar-bottom">
-          <div className="system-status"><span className="status-dot" /><span>All systems operational</span></div>
-          <button className="profile-button" type="button">
-            <span className="profile-avatar">JD</span>
-            <span className="profile-copy"><strong>Jordan Davis</strong><small>Security analyst</small></span>
-            <Icon name="more" size={18} />
-          </button>
-        </div>
-      </aside>
-
-      <main className="main-content" id="overview">
-        <header className="topbar">
-          <div className="breadcrumbs"><span>Security</span><Icon name="chevron" size={14} /><strong>Overview</strong></div>
-          <div className="topbar-actions">
-            <label className="search-box">
-              <Icon name="search" size={17} />
-              <input
-                aria-label="Search alerts"
-                placeholder="Search alerts..."
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-              />
-              <kbd>⌘ K</kbd>
-            </label>
-            <button className="icon-button notification-button" type="button" aria-label="Notifications">
-              <Icon name="bell" />
-              <span className="notification-dot" />
-            </button>
-            <span className="topbar-avatar" aria-label="Jordan Davis">JD</span>
-          </div>
-        </header>
-
-        <div className="dashboard">
+    <AppLayout query={query} onQueryChange={setQuery}>
           <section className="page-heading">
             <div>
               <div className="eyebrow"><span className="live-dot" /> LIVE SECURITY OVERVIEW</div>
@@ -228,9 +144,7 @@ function App() {
           </section>
 
           <footer className="dashboard-footer"><span>Sentinel SOC <span className="footer-divider">·</span> Demo dashboard with sample data</span><span>Last updated just now <i className="status-dot" /></span></footer>
-        </div>
-      </main>
-    </div>
+    </AppLayout>
   )
 }
 
