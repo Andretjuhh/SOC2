@@ -11,6 +11,8 @@ function OverviewPage() {
       <select className="date-range" aria-label="Date range">
         <option value="option1">Last 24 hours</option>
         <option value="option2">Last 48 hours</option>
+        <option value="option2">Last 7 days</option>
+        <option value="option2">Last 30 days</option>
       </select>
     </section>
   )
