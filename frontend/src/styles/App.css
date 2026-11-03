@@ -37,7 +37,7 @@
   color: #f3f2fb;
   font-size: 16px;
   font-weight: 700;
-  letter-spacing: -.5px;
+  letter-spacing: -0.5px;
 }
 
 .brand-name span {
@@ -136,7 +136,9 @@
   color: #9699aa;
   font-size: 12px;
   text-decoration: none;
-  transition: color .15s, background .15s;
+  transition:
+    color 0.15s,
+    background 0.15s;
 }
 
 .nav-link:hover {
@@ -297,7 +299,9 @@
   border: 1px solid #2b2e3b;
   border-radius: 3px;
   color: #73778a;
-  font: 9px ui-monospace, monospace;
+  font:
+    9px ui-monospace,
+    monospace;
 }
 
 .icon-button {
@@ -363,7 +367,7 @@
   color: #f0f0f6;
   font-size: clamp(23px, 2.4vw, 29px);
   font-weight: 600;
-  letter-spacing: -.8px;
+  letter-spacing: -0.8px;
 }
 
 .wave {
@@ -472,7 +476,7 @@
   color: #f0f0f6;
   font-size: 25px;
   font-weight: 600;
-  letter-spacing: -.8px;
+  letter-spacing: -0.8px;
   white-space: nowrap;
 }
 
@@ -554,7 +558,7 @@
 
 .insights-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.8fr) minmax(245px, .85fr);
+  grid-template-columns: minmax(0, 1.8fr) minmax(245px, 0.85fr);
   gap: 14px;
   margin-bottom: 15px;
 }
@@ -857,7 +861,7 @@
   color: #74788b;
   font-size: 8px;
   font-weight: 600;
-  letter-spacing: .55px;
+  letter-spacing: 0.55px;
 }
 
 .alerts-table th:first-child,
@@ -1016,7 +1020,7 @@
 }
 
 .pagination-button:disabled {
-  opacity: .5;
+  opacity: 0.5;
 }
 
 .dashboard-footer {
@@ -1075,7 +1079,7 @@
   }
 
   .insights-grid {
-    grid-template-columns: minmax(0, 1.5fr) minmax(225px, .9fr);
+    grid-template-columns: minmax(0, 1.5fr) minmax(225px, 0.9fr);
   }
 }
 
@@ -1283,6 +1287,6 @@
   *::before,
   *::after {
     scroll-behavior: auto !important;
-    transition-duration: .01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }
