@@ -1,32 +1,34 @@
 import { useState } from 'react'
 import Icon from './Icon.jsx'
+import { Link } from 'react-router-dom'
 
 function Sidebar() {
-  const [workspaceMenuOpen, setWorkspaceMenuOpen] = useState(false)
-
   return (
     <aside className="sidebar">
-      <a className="brand" href="#overview" aria-label="Sentinel SOC home">
-        <span className="brand-mark"><Icon name="shield" size={21} /></span>
-        <span className="brand-name">sentinel<span> / SOC</span></span>
-      </a>
+       <span className="brand-name">application name</span>
 
       <div className="nav-label">SECURITY OPERATIONS</div>
       <nav className="main-nav" aria-label="Main navigation">
-        <a className="nav-link active" href="#overview"><Icon name="grid" /><span>Overview</span></a>
-        <a className="nav-link" href="#alerts"><span className="nav-icon"><Icon name="shield" /></span><span>Alerts</span><span className="nav-count">12</span></a>
-        <a className="nav-link" href="#activity"><Icon name="activity" /><span>Activity</span></a>
-        <a className="nav-link" href="#assets"><Icon name="server" /><span>Assets</span></a>
+        <Link className="nav-link active" to="/overview">
+          <Icon name="grid" />
+          <span>Overview</span>
+        </Link>
+        <Link className="nav-link" to="/alerts">
+          <span className="nav-icon">
+            <Icon name="shield" />
+          </span>
+          <span>Alerts</span>
+          <span className="nav-count">12</span>
+        </Link>
+        <Link className="nav-link" to="/activity">
+          <Icon name="activity" />
+          <span>Activity</span>
+        </Link>
+        <Link className="nav-link" to="/assets">
+          <Icon name="server" />
+          <span>Assets</span>
+        </Link>
       </nav>
-
-      <div className="sidebar-bottom">
-        <div className="system-status"><span className="status-dot" /><span>All systems operational</span></div>
-        <button className="profile-button" type="button">
-          <span className="profile-avatar">JD</span>
-          <span className="profile-copy"><strong>User</strong><small>Role</small></span>
-          <Icon name="more" size={18} />
-        </button>
-      </div>
     </aside>
   )
 }
