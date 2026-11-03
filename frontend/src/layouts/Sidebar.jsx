@@ -27,7 +27,7 @@ function Sidebar() {
         <div className="system-status"><span className="status-dot" /><span>All systems operational</span></div>
         <button className="profile-button" type="button">
           <span className="profile-avatar">JD</span>
-          <span className="profile-copy"><strong>Jordan Davis</strong><small>Security analyst</small></span>
+          <span className="profile-copy"><strong>User</strong><small>Role</small></span>
           <Icon name="more" size={18} />
         </button>
       </div>

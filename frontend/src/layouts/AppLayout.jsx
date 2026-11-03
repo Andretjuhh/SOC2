@@ -6,7 +6,7 @@ function AppLayout (props) {
 
     const children = props.children
     const query = props.query
-    const onQueryChange = props.queryChange
+    const onQueryChange = props.onQueryChange
 
 
     return (
@@ -18,7 +18,6 @@ function AppLayout (props) {
             </main>
         </div>  
     )
-
 }
 
 export default AppLayout
