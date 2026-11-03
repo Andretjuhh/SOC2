@@ -2,7 +2,8 @@ import { useMemo, useState } from 'react'
 import OverviewPage from './pages/OverviewPage'
 import AlertsPage from './pages/AlertsPage'
 import AppLayout from './layouts/AppLayout'
-import { Navigate, Route, Routes } from 'react-router-dom'
+import LoginPage from './pages/LoginPage'
+import { Navigate, Outlet, Route, Routes } from 'react-router-dom'
 
 const events = [
   { time: '10:42:18', type: 'Unusual sign-in location', source: 'Identity Protection', severity: 'Critical', target: 'j.smith@acme.io', status: 'Investigating' },
@@ -30,16 +31,17 @@ function App() {
   }, [query, severityFilter])
 
   return (
-    <AppLayout query={query} onQueryChange={setQuery}>
-      <Routes>
-        <Route path="/" element={<Navigate to="/overview" />} />
+    <Routes>
+      <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route element={<AppLayout query={query} onQueryChange={setQuery}><Outlet /></AppLayout>}>
         <Route path="/overview" element={<OverviewPage />} />
         <Route path="/alerts" element={<AlertsPage 
         filteredEvents={filteredEvents} 
         severityFilter={severityFilter}
         setSeverityFilter={setSeverityFilter} />} />
-      </Routes>
-    </AppLayout>
+      </Route>
+    </Routes>
   )
 }
 
