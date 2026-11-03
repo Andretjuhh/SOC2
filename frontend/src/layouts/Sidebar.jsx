@@ -1,19 +1,15 @@
+import { useState } from 'react'
 import Icon from './Icon.jsx'
 
 function Sidebar() {
+  const [workspaceMenuOpen, setWorkspaceMenuOpen] = useState(false)
+
   return (
     <aside className="sidebar">
       <a className="brand" href="#overview" aria-label="Sentinel SOC home">
         <span className="brand-mark"><Icon name="shield" size={21} /></span>
         <span className="brand-name">sentinel<span> / SOC</span></span>
       </a>
-
-      <div className="workspace-label">WORKSPACE</div>
-      <button className="workspace-switcher" type="button">
-        <span className="workspace-avatar">A</span>
-        <span className="workspace-copy"><strong>Acme Corporation</strong><small>Enterprise plan</small></span>
-        <Icon name="chevron" size={15} />
-      </button>
 
       <div className="nav-label">SECURITY OPERATIONS</div>
       <nav className="main-nav" aria-label="Main navigation">
