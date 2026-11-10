@@ -34,6 +34,10 @@ public static class TicketToegang
     public static bool MagSchrijven(Gebruiker gebruiker) =>
         HeeftActieveKlant(gebruiker) && HeeftRecht(gebruiker, RechtSchrijven);
 
+    // UU6b: melding als iemand anders het ticket tussentijds heeft gewijzigd
+    public static IResult ConflictMelding() => Results.Problem(statusCode: 409,
+        title: "Dit ticket is tussentijds gewijzigd door een andere gebruiker. Ververs de pagina om de meest actuele gegevens te zien.");
+
     private static bool HeeftActieveKlant(Gebruiker gebruiker) =>
         gebruiker.Klant is { isActief: true };
 

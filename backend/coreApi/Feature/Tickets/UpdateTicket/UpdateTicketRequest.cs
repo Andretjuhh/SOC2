@@ -4,10 +4,12 @@ namespace CoreApi.Features.Tickets.UpdateTicket;
 
 // Alle velden zijn optioneel: alleen wat je meestuurt wordt aangepast
 public sealed record UpdateTicketRequest(string? Titel, string? Beschrijving,
-    TicketPrioriteit? Prioriteit, TicketCategorie? Categorie, TicketStatus? Status)
+    TicketPrioriteit? Prioriteit, TicketCategorie? Categorie, TicketStatus? Status, byte[]? Versie)
 {
     public string? Valideer()
     {
+        if (Versie is null || Versie.Length == 0)
+            return "Stuur de versie van het ticket mee.";
         if (Titel is not null && string.IsNullOrWhiteSpace(Titel))
             return "De titel mag niet leeg zijn.";
         if (Titel is not null && Titel.Trim().Length > 200)

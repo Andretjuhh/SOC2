@@ -28,6 +28,14 @@ public static class ResolveTicketHandler
             return Results.Problem(statusCode: 409, title: "Dit ticket is al afgerond.");
 
         // 4. UU6a: zonder oplossing mag je niet afronden, de status blijft dan gewoon hetzelfde
+
+                // UU6b: versie moet meegestuurd worden en nog kloppen
+        if (request.Versie is null || request.Versie.Length == 0)
+            return Results.ValidationProblem(new Dictionary<string, string[]>
+                { ["versie"] = ["Stuur de versie van het ticket mee."] });
+        if (!ticket.Versie.SequenceEqual(request.Versie))
+            return TicketToegang.ConflictMelding();
+
         if (string.IsNullOrWhiteSpace(request.Oplossing))
             return Results.ValidationProblem(new Dictionary<string, string[]>
             {
@@ -48,7 +56,15 @@ public static class ResolveTicketHandler
             GebruikerID = gebruiker.Id
         });
 
-        await db.SaveChangesAsync(ct);
+        try
+        {
+            await db.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            // Iemand anders was ons net voor tussen ophalen en opslaan
+            return TicketToegang.ConflictMelding();
+        }
 
         return Results.Ok(TicketResponse.Van(ticket));
     }

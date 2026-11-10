@@ -14,7 +14,8 @@ public sealed record TicketResponse(
     string? Oplossing,
     Guid AangemaaktDoor,
     DateTime AangemaaktOp,
-    DateTime? AfgerondOp)
+    DateTime? AfgerondOp,
+    byte[] Versie)
 {
     public static TicketResponse Van(Ticket ticket) => new(
         ticket.TicketID,
@@ -27,5 +28,6 @@ public sealed record TicketResponse(
         ticket.Oplossing,
         ticket.AangemaaktDoor,
         ticket.AangemaaktOp,
-        ticket.AfgerondOp);
+        ticket.AfgerondOp,
+        ticket.Versie);
 }

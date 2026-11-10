@@ -50,6 +50,10 @@ public class Ticket
     public DateTime AangemaaktOp { get; set; } = DateTime.UtcNow;
 
     public DateTime? AfgerondOp { get; set; }
+
+    
+    // Versienummer voor gelijktijdig bewerken. SQL Server verandert dit automatisch bij elke wijziging.
+    public byte[] Versie { get; set; } = [];
     
     // Alle historie-regels van dit ticket
     public ICollection<TicketHistorie> Historie { get; set; } = new List<TicketHistorie>();

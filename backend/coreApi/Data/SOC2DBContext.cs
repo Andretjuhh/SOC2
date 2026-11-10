@@ -51,6 +51,9 @@ public class SOC2DBContext(DbContextOptions<SOC2DBContext> options) : IdentityUs
             entity.Property(ticket => ticket.Prioriteit).HasConversion<string>().HasMaxLength(20);
             entity.Property(ticket => ticket.Categorie).HasConversion<string>().HasMaxLength(50);
 
+            // Versie-kolom (rowversion) voor optimistic locking
+            entity.Property(ticket => ticket.Versie).IsRowVersion();
+
             entity.HasOne(ticket => ticket.Klant).WithMany()
                 .HasForeignKey(ticket => ticket.KlantID).OnDelete(DeleteBehavior.Restrict);
         });

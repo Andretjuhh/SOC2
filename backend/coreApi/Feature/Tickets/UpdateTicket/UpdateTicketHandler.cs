@@ -28,6 +28,11 @@ public static class UpdateTicketHandler
             return Results.Problem(statusCode: 409, title: "Een afgerond ticket kan niet meer worden bewerkt.");
 
         // 4. Invoer controleren
+
+                // UU6b: heeft iemand anders het ticket intussen gewijzigd?
+        if (!ticket.Versie.SequenceEqual(request.Versie!))
+            return TicketToegang.ConflictMelding();
+
         var fout = request.Valideer();
         if (fout is not null)
             return Results.ValidationProblem(new Dictionary<string, string[]> { ["ticket"] = [fout] });
@@ -73,7 +78,15 @@ public static class UpdateTicketHandler
             GebruikerID = gebruiker.Id
         });
 
-        await db.SaveChangesAsync(ct);
+        try 
+        {
+            await db.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            // Iemand anders was ons net voor tussen ophalen en opslaan
+            return TicketToegang.ConflictMelding();
+        }
 
         return Results.Ok(TicketResponse.Van(ticket));
     }
