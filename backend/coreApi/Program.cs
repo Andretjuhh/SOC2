@@ -1,14 +1,19 @@
+using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using CoreApi.Data;
 using CoreApi.Features.Auth;
+using CoreApi.Features.Auth.DevLogin; 
 using CoreApi.Features.Gebruikers.CreateGebruiker;
 using CoreApi.Features.Klant.CreateKlant;
+using CoreApi.Features.Tickets;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.ConfigureHttpJsonOptions(options =>
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddDbContext<SOC2DBContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddSOC2Identity(builder.Environment.IsDevelopment());
@@ -31,12 +36,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
     app.MapGroup("/api/gebruikers").WithTags("Gebruikers").MapCreateGebruikerEndpoint();
     app.MapGroup("/api/klanten").WithTags("Klanten").MapCreateKlantEndpoint();
+    app.MapGroup("/api/dev").WithTags("Development").MapDevLoginEndpoint();
 }
 
 app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapAuthEndpoints();
+app.MapTicketEndpoints();
 
 app.MapGet("/health", () => TypedResults.Ok(new { status = "Healthy" }))
     .WithName("HealthCheck")

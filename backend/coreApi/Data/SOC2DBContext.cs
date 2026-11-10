@@ -10,6 +10,8 @@ public class SOC2DBContext(DbContextOptions<SOC2DBContext> options) : IdentityUs
     public DbSet<Klant> Klanten => Set<Klant>();
     public DbSet<Rol> Rollen => Set<Rol>();
     public DbSet<Recht> Rechten => Set<Recht>();
+    public DbSet<Ticket> Tickets => Set<Ticket>();
+    public DbSet<TicketHistorie> TicketHistorie => Set<TicketHistorie>();
 
     protected override void OnModelCreating(ModelBuilder model)
     {
@@ -37,5 +39,60 @@ public class SOC2DBContext(DbContextOptions<SOC2DBContext> options) : IdentityUs
         model.Entity<Recht>().Property(recht => recht.Naam).HasMaxLength(100);
         model.Entity<Recht>().HasIndex(recht => recht.Naam).IsUnique();
         model.Entity<Rol>().HasMany(rol => rol.Rechten).WithMany(recht => recht.Rollen);
+
+            model.Entity<Ticket>(entity =>
+        {
+            entity.HasKey(ticket => ticket.TicketID);
+            entity.Property(ticket => ticket.Titel).HasMaxLength(200).IsRequired();
+            entity.Property(ticket => ticket.Beschrijving).IsRequired();
+
+            // Enums als tekst opslaan, dan zie je "Open" in de database in plaats van 0
+            entity.Property(ticket => ticket.Status).HasConversion<string>().HasMaxLength(20);
+            entity.Property(ticket => ticket.Prioriteit).HasConversion<string>().HasMaxLength(20);
+            entity.Property(ticket => ticket.Categorie).HasConversion<string>().HasMaxLength(50);
+
+            entity.HasOne(ticket => ticket.Klant).WithMany()
+                .HasForeignKey(ticket => ticket.KlantID).OnDelete(DeleteBehavior.Restrict);
+        });
+
+            model.Entity<TicketHistorie>(entity =>
+        {
+            entity.ToTable("TicketHistorie");
+            entity.HasKey(historie => historie.TicketHistorieID);
+            entity.Property(historie => historie.Actie).HasMaxLength(50).IsRequired();
+            entity.Property(historie => historie.Omschrijving).IsRequired();
+
+            entity.HasOne(historie => historie.Ticket).WithMany(ticket => ticket.Historie)
+                .HasForeignKey(historie => historie.TicketID).OnDelete(DeleteBehavior.Restrict);
+
+            
+        });
+
+        
+
+
     }
+
+        // Beveiliging in de code: historie mag alleen toegevoegd worden, nooit gewijzigd of verwijderd
+    public override int SaveChanges(bool acceptAllChangesOnSuccess)
+    {
+        ControleerHistorie();
+        return base.SaveChanges(acceptAllChangesOnSuccess);
+    }
+
+    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+    {
+        ControleerHistorie();
+        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+    }
+
+    private void ControleerHistorie()
+    {
+        var historieGewijzigd = ChangeTracker.Entries<TicketHistorie>()
+            .Any(entry => entry.State == EntityState.Modified || entry.State == EntityState.Deleted);
+
+        if (historieGewijzigd)
+            throw new InvalidOperationException("Ticket-historie mag niet worden gewijzigd of verwijderd.");
+    }
+    
 }
