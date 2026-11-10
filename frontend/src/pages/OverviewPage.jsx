@@ -1,4 +1,3 @@
-import Icon from '../layouts/Icon.jsx'
 
 function OverviewPage() {
   return (
@@ -7,13 +6,6 @@ function OverviewPage() {
         <h1>Good morning, user </h1>
         <p>Here’s what’s happening across your environment today.</p>
       </div>
-
-      <select className="date-range" aria-label="Date range">
-        <option value="option1">Last 24 hours</option>
-        <option value="option2">Last 48 hours</option>
-        <option value="option2">Last 7 days</option>
-        <option value="option2">Last 30 days</option>
-      </select>
     </section>
   )
 }
