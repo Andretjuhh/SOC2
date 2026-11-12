@@ -9,6 +9,13 @@ function AlertsPage(props) {
 
   return (
     <section id="activity">
+ <select className="date-range" aria-label="Date range">
+        <option value="option1">Last 24 hours</option>
+        <option value="option2">Last 48 hours</option>
+        <option value="option2">Last 7 days</option>
+        <option value="option2">Last 30 days</option>
+      </select>
+
       <section className="metric-grid" aria-label="Security metrics">
         <article className="metric-card">
           <div className="metric-top"><span>Active alerts</span><span className="metric-icon alert-icon"><Icon name="shield" size={17} /></span></div>

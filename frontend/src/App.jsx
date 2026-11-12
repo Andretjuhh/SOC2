@@ -1,9 +1,15 @@
 import { useMemo, useState } from 'react'
+import { Navigate, Route, Routes } from 'react-router-dom'
+
 import OverviewPage from './pages/OverviewPage'
 import AlertsPage from './pages/AlertsPage'
 import AppLayout from './layouts/AppLayout'
 import LoginPage from './pages/LoginPage'
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom'
+import ActivityPage from './pages/ActivityPage'
+import TicketPage from './pages/TicketPage'
+import CasesPage from './pages/CasesPage'
+import AssetsPage from './pages/AssetsPage'
 
 const events = [
   { time: '10:42:18', type: 'Unusual sign-in location', source: 'Identity Protection', severity: 'Critical', target: 'j.smith@acme.io', status: 'Investigating' },
@@ -42,6 +48,18 @@ function App() {
         setSeverityFilter={setSeverityFilter} />} />
       </Route>
     </Routes>
+    <AppLayout query={query} onQueryChange={setQuery}>
+      <Routes>
+        <Route path="/"element={<Navigate to="/overview" />} />
+        <Route path="/overview" element={<OverviewPage />} />
+        <Route path="/alerts" element={<AlertsPage   filteredEvents={filteredEvents}  severityFilter={severityFilter} setSeverityFilter={setSeverityFilter} />} />
+        <Route path="/activity" element={<ActivityPage />} />
+        <Route path="/assets" element={<AssetsPage />} />
+        <Route path="/tickets" element={<TicketPage/>}/> 
+        <Route path="/cases" element={<CasesPage/>}/>
+
+        </Routes>
+    </AppLayout>
   )
 }
 
