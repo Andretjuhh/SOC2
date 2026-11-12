@@ -22,6 +22,42 @@ namespace coreApi.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("CoreApi.Domain.Alert", b =>
+                {
+                    b.Property<int>("AlertID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AlertID"));
+
+                    b.Property<string>("AffectedAsset")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime>("DetectionTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Event")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<Guid>("KlantID")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Severity")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("AlertID");
+
+                    b.HasIndex("KlantID");
+
+                    b.ToTable("Alerts");
+                });
+
             modelBuilder.Entity("CoreApi.Domain.Gebruiker", b =>
                 {
                     b.Property<Guid>("Id")
@@ -358,6 +394,17 @@ namespace coreApi.Migrations
                     b.ToTable("RechtRol");
                 });
 
+            modelBuilder.Entity("CoreApi.Domain.Alert", b =>
+                {
+                    b.HasOne("CoreApi.Domain.Klant", "Klant")
+                        .WithMany("Alerts")
+                        .HasForeignKey("KlantID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Klant");
+                });
+
             modelBuilder.Entity("CoreApi.Domain.Gebruiker", b =>
                 {
                     b.HasOne("CoreApi.Domain.Klant", "Klant")
@@ -442,6 +489,8 @@ namespace coreApi.Migrations
 
             modelBuilder.Entity("CoreApi.Domain.Klant", b =>
                 {
+                    b.Navigation("Alerts");
+
                     b.Navigation("Gebruikers");
                 });
 
