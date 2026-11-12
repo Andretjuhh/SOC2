@@ -8,18 +8,17 @@ function Topbar({ query, onQueryChange }) {
         <label className="search-box">
           <Icon name="search" size={17} />
           <input
-            aria-label="Search alerts"
-            placeholder="Search alerts..."
+            aria-label="Search"
+            placeholder="Search"
             value={query}
             onChange={(event) => onQueryChange(event.target.value)}
           />
-          <kbd>⌘ K</kbd>
         </label>
         <button className="icon-button notification-button" type="button" aria-label="Notifications">
           <Icon name="bell" />
           <span className="notification-dot" />
         </button>
-        <span className="topbar-avatar" aria-label="Jordan Davis">JD</span>
+        <span className="topbar-avatar" aria-label="Jordan Davis">AC</span>
       </div>
     </header>
   )
