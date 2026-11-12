@@ -35,6 +35,9 @@ namespace coreApi.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<DateTime?>("ClosedTime")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("DetectionTime")
                         .HasColumnType("datetime2");
 

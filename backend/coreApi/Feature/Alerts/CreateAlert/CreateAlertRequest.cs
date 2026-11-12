@@ -4,7 +4,8 @@ public sealed record CreateAlertRequest(
     string Event,
     string Severity,
     string AffectedAsset,
-    DateTime DetectionTime)
+    DateTime DetectionTime,
+    DateTime? ClosedTime = null)
 {
     public string? Valideer()
     {
@@ -20,6 +21,8 @@ public sealed record CreateAlertRequest(
             return "De getroffen asset mag maximaal 200 tekens zijn.";
         if (DetectionTime == default)
             return "Vul een geldige detectietijd in.";
+        if (ClosedTime.HasValue && ClosedTime.Value < DetectionTime)
+            return "De sluitingstijd mag niet vóór de detectietijd liggen.";
 
         return null;
     }

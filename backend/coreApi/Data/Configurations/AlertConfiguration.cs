@@ -12,6 +12,7 @@ public sealed class AlertConfiguration : IEntityTypeConfiguration<Alert>
         builder.Property(alert => alert.Event).HasMaxLength(200).IsRequired();
         builder.Property(alert => alert.Severity).HasMaxLength(20).IsRequired();
         builder.Property(alert => alert.AffectedAsset).HasMaxLength(200).IsRequired();
+        builder.Property(alert => alert.ClosedTime).IsRequired(false);
 
         builder.HasOne(alert => alert.Klant).WithMany(klant => klant.Alerts)
             .HasForeignKey(alert => alert.KlantID).OnDelete(DeleteBehavior.Restrict);

@@ -1,9 +1,8 @@
-import Icon from '../layouts/Icon.jsx'
-
-const chartPoints = '0,118 40,108 80,112 120,78 160,88 200,62 240,74 280,44 320,56 360,30 400,48 440,37 480,55 520,23 560,39 600,15'
-
 function AlertsPage(props) {
   const filteredEvents = props.filteredEvents
+  const totalEvents = props.totalEvents
+  const loading = props.loading
+  const error = props.error
   const severityFilter = props.severityFilter
   const setSeverityFilter = props.setSeverityFilter
 
@@ -16,13 +15,7 @@ function AlertsPage(props) {
         <option value="option2">Last 30 days</option>
       </select>
 
-     
-
       <section className="panel alerts-panel" id="alerts">
-        <div className="alerts-heading">
-          <div><div className="alerts-title"><h2>Recent alerts</h2><span className="alert-count">24</span></div><p>Review and triage the latest security events.</p></div>
-          <a className="view-all" href="#alerts">View all alerts <Icon name="chevron" size={15} /></a>
-        </div>
         <div className="alert-filters" aria-label="Filter alerts by severity">
           {['All events', 'Critical', 'High', 'Medium', 'Low'].map((filter) => (
             <button
@@ -38,25 +31,30 @@ function AlertsPage(props) {
         </div>
         <div className="table-scroll">
           <table className="alerts-table">
-            <thead><tr><th>EVENT</th><th>SOURCE</th><th>SEVERITY</th><th>AFFECTED ASSET</th><th>STATUS</th><th>TIME</th></tr></thead>
+            <thead><tr><th>EVENT</th><th>SEVERITY</th><th>AFFECTED ASSET</th><th>DETECTED</th><th>CLOSED</th></tr></thead>
             <tbody>
               {filteredEvents.map((event) => (
-                <tr key={`${event.time}-${event.type}`}>
+                <tr key={event.id}>
                   <td><span className={`event-marker ${event.severity.toLowerCase()}`} /><strong>{event.type}</strong></td>
-                  <td className="muted-cell">{event.source}</td>
                   <td><span className={`severity-badge ${event.severity.toLowerCase()}`}><i className={`severity-dot ${event.severity.toLowerCase()}-dot`} />{event.severity}</span></td>
                   <td className="asset-cell">{event.target}</td>
-                  <td><span className={`status-badge ${event.status.toLowerCase()}`}><i />{event.status}</span></td>
                   <td className="time-cell">{event.time}</td>
+                  <td className="time-cell">{event.closedTime ?? '—'}</td>
                 </tr>
               ))}
-              {filteredEvents.length === 0 && (
-                <tr><td className="empty-state" colSpan="6">No alerts match your search and filters.</td></tr>
+              {loading && (
+                <tr><td className="empty-state" colSpan="5">Loading alerts…</td></tr>
+              )}
+              {!loading && error && (
+                <tr><td className="empty-state" colSpan="5">{error}</td></tr>
+              )}
+              {!loading && !error && filteredEvents.length === 0 && (
+                <tr><td className="empty-state" colSpan="5">No alerts match your search and filters.</td></tr>
               )}
             </tbody>
           </table>
         </div>
-        <div className="table-footer"><span>Showing {filteredEvents.length} of 24 alerts</span><button type="button" className="pagination-button" disabled>‹</button><button type="button" className="pagination-button" disabled>›</button></div>
+        <div className="table-footer"><span>Showing {filteredEvents.length} of {totalEvents} alerts</span><button type="button" className="pagination-button" disabled>‹</button><button type="button" className="pagination-button" disabled>›</button></div>
       </section>
 
       <footer className="dashboard-footer"><span>Sentinel SOC <span className="footer-divider">·</span> Demo dashboard with sample data</span><span>Last updated just now <i className="status-dot" /></span></footer>

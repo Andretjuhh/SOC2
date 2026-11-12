@@ -27,6 +27,7 @@ public static class CreateAlertHandler
             Severity = request.Severity,
             AffectedAsset = request.AffectedAsset.Trim(),
             DetectionTime = request.DetectionTime,
+            ClosedTime = request.ClosedTime,
             KlantID = klantId
         };
 

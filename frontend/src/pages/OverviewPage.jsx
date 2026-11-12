@@ -2,7 +2,15 @@ import Icon from '../layouts/Icon.jsx'
 
 const chartPoints = '0,118 40,108 80,112 120,78 160,88 200,62 240,74 280,44 320,56 360,30 400,48 440,37 480,55 520,23 560,39 600,15'
 
-function OverviewPage() {
+function OverviewPage({ alertMetrics, loading, error }) {
+  const activeCount = alertMetrics.activeCount
+  const severityCounts = alertMetrics.severityCounts
+  const displayedCount = loading || error ? '—' : activeCount
+  const percentage = (severity) => loading || error || activeCount === 0 ? 0: Math.round((severityCounts[severity] / activeCount) * 1000) / 10
+  const displayedSeverityCount = (severity) => loading || error ? '—' : severityCounts[severity]
+  const breakdownLabel = ['Critical', 'High', 'Medium', 'Low']
+    .map((severity) => `${severityCounts[severity]} ${severity.toLowerCase()}`)
+    .join(', ')
 
   return (
     <>
@@ -17,8 +25,10 @@ function OverviewPage() {
       <section className="metric-grid" aria-label="Security metrics">
         <article className="metric-card">
           <div className="metric-top"><span>Active alerts</span><span className="metric-icon alert-icon"><Icon name="shield" size={17} /></span></div>
-          <div className="metric-value">24 <span className="metric-trend negative"><Icon name="arrow" size={13} /> 12%</span></div>
-          <div className="metric-foot"><span className="severity-dot critical-dot" /> 3 critical <span className="foot-divider">·</span> 8 high</div>
+          <div className="metric-value">{displayedCount}</div>
+          <div className="metric-foot">{loading || error
+            ? 'Alert counts unavailable'
+            : <><span className="severity-dot critical-dot" /> {severityCounts.Critical} critical <span className="foot-divider">·</span> {severityCounts.High} high</>}</div>
         </article>
         <article className="metric-card">
           <div className="metric-top"><span>Mean time to respond</span><span className="metric-icon time-icon"><Icon name="clock" size={17} /></span></div>
@@ -63,16 +73,20 @@ function OverviewPage() {
         </article>
 
         <article className="panel breakdown-panel">
-          <div className="panel-heading"><div><h2>Alert breakdown</h2><p>By severity · last 24 hours</p></div><button className="panel-menu" type="button" aria-label="Alert breakdown options"><Icon name="more" /></button></div>
-          <div className="severity-total"><strong>24</strong><span>Total alerts</span></div>
-          <div className="severity-bar" aria-label="3 critical, 8 high, 9 medium, 4 low alerts">
-            <span className="bar-critical" /><span className="bar-high" /><span className="bar-medium" /><span className="bar-low" />
+          <div className="panel-heading"><div><h2>Alert breakdown</h2><p>Active alerts by severity</p></div><button className="panel-menu" type="button" aria-label="Alert breakdown options"><Icon name="more" /></button></div>
+          <div className="severity-total"><strong>{displayedCount}</strong><span>Active alerts</span></div>
+          {error && <p role="status">{error}</p>}
+          <div className="severity-bar" aria-label={`${breakdownLabel} active alerts`}>
+            <span className="bar-critical" style={{ width: `${percentage('Critical')}%` }} />
+            <span className="bar-high" style={{ width: `${percentage('High')}%` }} />
+            <span className="bar-medium" style={{ width: `${percentage('Medium')}%` }} />
+            <span className="bar-low" style={{ width: `${percentage('Low')}%` }} />
           </div>
           <div className="severity-list">
-            <div><span><i className="severity-dot critical-dot" />Critical</span><strong>3</strong><small>12.5%</small></div>
-            <div><span><i className="severity-dot high-dot" />High</span><strong>8</strong><small>33.3%</small></div>
-            <div><span><i className="severity-dot medium-dot" />Medium</span><strong>9</strong><small>37.5%</small></div>
-            <div><span><i className="severity-dot low-dot" />Low</span><strong>4</strong><small>16.7%</small></div>
+            <div><span><i className="severity-dot critical-dot" />Critical</span><strong>{displayedSeverityCount('Critical')}</strong><small>{loading || error ? '—' : `${percentage('Critical')}%`}</small></div>
+            <div><span><i className="severity-dot high-dot" />High</span><strong>{displayedSeverityCount('High')}</strong><small>{loading || error ? '—' : `${percentage('High')}%`}</small></div>
+            <div><span><i className="severity-dot medium-dot" />Medium</span><strong>{displayedSeverityCount('Medium')}</strong><small>{loading || error ? '—' : `${percentage('Medium')}%`}</small></div>
+            <div><span><i className="severity-dot low-dot" />Low</span><strong>{displayedSeverityCount('Low')}</strong><small>{loading || error ? '—' : `${percentage('Low')}%`}</small></div>
           </div>
         </article>
       </section>

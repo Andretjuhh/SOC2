@@ -12,6 +12,8 @@ public class Alert
 
     public DateTime DetectionTime { get; set; }
 
+    public DateTime? ClosedTime { get; set; }
+
     public Guid KlantID { get; set; }
     public Klant Klant { get; set; } = null!;
 }

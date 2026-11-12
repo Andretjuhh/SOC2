@@ -7,12 +7,14 @@ public sealed record AlertResponse(
     string Event,
     string Severity,
     string AffectedAsset,
-    DateTime DetectionTime)
+    DateTime DetectionTime,
+    DateTime? ClosedTime)
 {
     public static AlertResponse Van(Alert alert) => new(
         alert.AlertID,
         alert.Event,
         alert.Severity,
         alert.AffectedAsset,
-        alert.DetectionTime);
+        alert.DetectionTime,
+        alert.ClosedTime);
 }

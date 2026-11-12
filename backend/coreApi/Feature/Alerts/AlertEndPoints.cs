@@ -8,13 +8,13 @@ public static class AlertEndpoints
 {
     public static void MapAlertEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/alerts").WithTags("Alerts").RequireAuthorization();
+        var group = app.MapGroup("/api/alerts").WithTags("Alerts"); //.requireAuthorization();
 
         group.MapPost("", CreateAlertHandler.Handle).WithName("CreateAlert")
             .Produces<AlertResponse>(201).Produces(401).Produces(403).ProducesValidationProblem();
 
         group.MapGet("", ListAlertsHandler.Handle).WithName("ListAlerts")
-            .Produces<List<AlertResponse>>().Produces(401).Produces(403);
+            .Produces<List<AlertResponse>>();
 
         group.MapGet("/{id:int}", GetAlertHandler.Handle).WithName("GetAlert")
             .Produces<AlertResponse>().Produces(401).Produces(403).Produces(404);

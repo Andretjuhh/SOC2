@@ -137,9 +137,11 @@ RBAC/tenantafscherming uit US-03 en US-05 zijn nog niet afgerond.
 Voer vanuit de repositorymap uit:
 
 ```powershell
+dotnet run --project backend\coreApi\coreApi.csproj //(voor swagger UI)
 dotnet test backend/coreApi.Tests/coreApi.Tests.csproj
 npm.cmd --prefix frontend run build
 npm.cmd --prefix frontend run lint
+
 ```
 
 De backendtests gebruiken een aparte EF InMemory-testdatabase en hebben geen lokale SQL Server nodig.
