@@ -38,7 +38,7 @@ function App() {
     <AppLayout query={query} onQueryChange={setQuery}>
       <Routes>
         <Route path="/"element={<Navigate to="/overview" />} />
-        <Route path="/overview" element={<OverviewPage />} />
+        <Route path="/overview" element={<OverviewPage  filteredEvents={filteredEvents}  severityFilter={severityFilter} setSeverityFilter={setSeverityFilter} />} />
         <Route path="/alerts" element={<AlertsPage   filteredEvents={filteredEvents}  severityFilter={severityFilter} setSeverityFilter={setSeverityFilter} />} />
         <Route path="/activity" element={<ActivityPage />} />
         <Route path="/assets" element={<AssetsPage />} />

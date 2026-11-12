@@ -379,12 +379,7 @@
 
 .page-heading p,
 .panel-heading p,
-.alerts-heading > div > p {
-  margin: 7px 0 0;
-  color: #898da0;
-  font-size: 11px;
-}
-
+.alerts-heading p,
 .date-range {
   display: flex;
   height: 34px;
