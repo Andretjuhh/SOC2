@@ -1,11 +1,10 @@
 import { useMemo, useState } from 'react'
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Navigate, Outlet, Route, Routes } from 'react-router-dom'
 
 import OverviewPage from './pages/OverviewPage'
 import AlertsPage from './pages/AlertsPage'
 import AppLayout from './layouts/AppLayout'
 import LoginPage from './pages/LoginPage'
-import { Navigate, Outlet, Route, Routes } from 'react-router-dom'
 import ActivityPage from './pages/ActivityPage'
 import TicketPage from './pages/TicketPage'
 import CasesPage from './pages/CasesPage'
@@ -40,26 +39,16 @@ function App() {
     <Routes>
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<LoginPage />} />
+
       <Route element={<AppLayout query={query} onQueryChange={setQuery}><Outlet /></AppLayout>}>
-        <Route path="/overview" element={<OverviewPage />} />
-        <Route path="/alerts" element={<AlertsPage 
-        filteredEvents={filteredEvents} 
-        severityFilter={severityFilter}
-        setSeverityFilter={setSeverityFilter} />} />
-      </Route>
-    </Routes>
-    <AppLayout query={query} onQueryChange={setQuery}>
-      <Routes>
-        <Route path="/"element={<Navigate to="/overview" />} />
-        <Route path="/overview" element={<OverviewPage  filteredEvents={filteredEvents}  severityFilter={severityFilter} setSeverityFilter={setSeverityFilter} />} />
-        <Route path="/alerts" element={<AlertsPage   filteredEvents={filteredEvents}  severityFilter={severityFilter} setSeverityFilter={setSeverityFilter} />} />
+        <Route path="/overview" element={<OverviewPage /> } />
+        <Route path="/alerts" element={<AlertsPage filteredEvents={filteredEvents} severityFilter={severityFilter} setSeverityFilter={setSeverityFilter} />} />
         <Route path="/activity" element={<ActivityPage />} />
         <Route path="/assets" element={<AssetsPage />} />
-        <Route path="/tickets" element={<TicketPage/>}/> 
-        <Route path="/cases" element={<CasesPage/>}/>
-
-        </Routes>
-    </AppLayout>
+        <Route path="/tickets" element={<TicketPage />} />
+        <Route path="/cases" element={<CasesPage />} />
+      </Route>
+    </Routes>
   )
 }
 

@@ -1,11 +1,8 @@
 import Icon from '../layouts/Icon.jsx'
+
 const chartPoints = '0,118 40,108 80,112 120,78 160,88 200,62 240,74 280,44 320,56 360,30 400,48 440,37 480,55 520,23 560,39 600,15'
 
-function OverviewPage(props) {
-
-  const filteredEvents = props.filteredEvents
-  const severityFilter = props.severityFilter
-  const setSeverityFilter = props.setSeverityFilter
+function OverviewPage() {
 
   return (
     <>

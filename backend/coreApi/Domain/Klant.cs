@@ -16,4 +16,6 @@ public class Klant
 
     public ICollection<Gebruiker> Gebruikers { get; set; } = new List<Gebruiker>();
 
+    public ICollection<Alert> Alerts { get; set; } = new List<Alert>();
+
 }
