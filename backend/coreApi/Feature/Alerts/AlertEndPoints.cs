@@ -14,7 +14,7 @@ public static class AlertEndpoints
             .Produces<AlertResponse>(201).Produces(401).Produces(403).ProducesValidationProblem();
 
         group.MapGet("", ListAlertsHandler.Handle).WithName("ListAlerts")
-            .Produces<List<AlertResponse>>();
+            .Produces<IReadOnlyList<AlertTestItem>>();
 
         group.MapGet("/{id:int}", GetAlertHandler.Handle).WithName("GetAlert")
             .Produces<AlertResponse>().Produces(401).Produces(403).Produces(404);

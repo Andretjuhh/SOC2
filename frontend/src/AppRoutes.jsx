@@ -16,7 +16,7 @@ function AppRoutes({ query, onQueryChange, alerts }) {
       <Route path="/login" element={<LoginPage />} />
 
       <Route element={<AppLayout query={query} onQueryChange={onQueryChange}><Outlet /></AppLayout>}>
-        <Route path="/overview" element={<OverviewPage alertMetrics={alerts.metrics} loading={alerts.loading} error={alerts.error} />} />
+        <Route path="/overview" element={<OverviewPage alertMetrics={alerts.metrics} loading={alerts.loading} error={alerts.error} testAlerts={alerts.testTemplates} onAlertGenerated={alerts.addAlert} />} />
         <Route path="/alerts" element={<AlertsPage filteredEvents={alerts.filteredEvents} totalEvents={alerts.alerts.length} loading={alerts.loading} error={alerts.error} severityFilter={alerts.severityFilter} setSeverityFilter={alerts.setSeverityFilter} />} />
         <Route path="/activity" element={<ActivityPage />} />
         <Route path="/assets" element={<AssetsPage />} />

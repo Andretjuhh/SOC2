@@ -7,6 +7,7 @@ function App() {
   const alerts = useAlerts(query)
 
   return <AppRoutes query={query} onQueryChange={setQuery} alerts={alerts} />
+
 }
 
 export default App

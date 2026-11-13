@@ -31,25 +31,26 @@ function AlertsPage(props) {
         </div>
         <div className="table-scroll">
           <table className="alerts-table">
-            <thead><tr><th>EVENT</th><th>SEVERITY</th><th>AFFECTED ASSET</th><th>DETECTED</th><th>CLOSED</th></tr></thead>
+            <thead><tr><th>EVENT</th><th>SEVERITY</th><th>OWNER</th><th>AFFECTED ASSET</th><th>DETECTED</th><th>CLOSED</th></tr></thead>
             <tbody>
               {filteredEvents.map((event) => (
                 <tr key={event.id}>
-                  <td><span className={`event-marker ${event.severity.toLowerCase()}`} /><strong>{event.type}</strong></td>
+                  <td className="event-name-cell"><span className={`event-marker ${event.severity.toLowerCase()}`} /><strong>{event.type}</strong></td>
                   <td><span className={`severity-badge ${event.severity.toLowerCase()}`}><i className={`severity-dot ${event.severity.toLowerCase()}-dot`} />{event.severity}</span></td>
+                  <td className="owner-cell">{event.owner}</td>
                   <td className="asset-cell">{event.target}</td>
                   <td className="time-cell">{event.time}</td>
                   <td className="time-cell">{event.closedTime ?? '—'}</td>
                 </tr>
               ))}
               {loading && (
-                <tr><td className="empty-state" colSpan="5">Loading alerts…</td></tr>
+                <tr><td className="empty-state" colSpan="6">Loading alerts…</td></tr>
               )}
               {!loading && error && (
-                <tr><td className="empty-state" colSpan="5">{error}</td></tr>
+                <tr><td className="empty-state" colSpan="6">{error}</td></tr>
               )}
               {!loading && !error && filteredEvents.length === 0 && (
-                <tr><td className="empty-state" colSpan="5">No alerts match your search and filters.</td></tr>
+                <tr><td className="empty-state" colSpan="6">No alerts match your search and filters.</td></tr>
               )}
             </tbody>
           </table>
