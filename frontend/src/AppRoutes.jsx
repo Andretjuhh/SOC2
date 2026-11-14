@@ -9,19 +9,23 @@ import OverviewPage from './pages/OverviewPage'
 import TicketPage from './pages/TicketPage'
 import AppLayout from './layouts/AppLayout'
 
-function AppRoutes({ query, onQueryChange, alerts }) {
+import AlertsProvider from './features/alerts/AlertsProvider'
+
+function AppRoutes({ query, onQueryChange }) {
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<LoginPage />} />
 
-      <Route element={<AppLayout query={query} onQueryChange={onQueryChange}><Outlet /></AppLayout>}>
-        <Route path="/overview" element={<OverviewPage alertMetrics={alerts.metrics} loading={alerts.loading} error={alerts.error} testAlerts={alerts.testTemplates} onAlertGenerated={alerts.addAlert} />} />
-        <Route path="/alerts" element={<AlertsPage filteredEvents={alerts.filteredEvents} totalEvents={alerts.alerts.length} loading={alerts.loading} error={alerts.error} severityFilter={alerts.severityFilter} setSeverityFilter={alerts.setSeverityFilter} />} />
-        <Route path="/activity" element={<ActivityPage />} />
-        <Route path="/assets" element={<AssetsPage />} />
-        <Route path="/tickets" element={<TicketPage />} />
-        <Route path="/cases" element={<CasesPage />} />
+      <Route element={<AlertsProvider query={query}><Outlet /></AlertsProvider>}>
+        <Route element={<AppLayout query={query} onQueryChange={onQueryChange}><Outlet /></AppLayout>}>
+          <Route path="/overview" element={<OverviewPage />} />
+          <Route path="/alerts" element={<AlertsPage />} />
+          <Route path="/activity" element={<ActivityPage />} />
+          <Route path="/assets" element={<AssetsPage />} />
+          <Route path="/tickets" element={<TicketPage />} />
+          <Route path="/cases" element={<CasesPage />} />
+        </Route>
       </Route>
     </Routes>
   )

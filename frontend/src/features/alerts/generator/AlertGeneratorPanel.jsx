@@ -1,42 +1,69 @@
-import useAlertGenerator from './useAlertGenerator'
+function GeneratorButton({ label, onClick, disabled, className, children }) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      onClick={onClick}
+      disabled={disabled}
+      className={className}
+    >
+      {children}
+    </button>
+  )
+}
 
-export default function AlertGeneratorPanel({ templates, onAlert, loading }) {
-  const { running, setRunning, intervalMs, changeSpeed } = useAlertGenerator(templates, onAlert)
+export default function AlertGeneratorPanel({ generator, templates, loading, onReset }) {
+  const {
+    running,
+    toggleRunning,
+    intervalLabel,
+    canSpeedUp,
+    canSlowDown,
+    changeSpeed,
+  } = generator
+  const controlsDisabled = loading || templates.length === 0
 
   return (
-    <section className="alert-generator" aria-label="Test generator">
-      <h2>Test generator</h2>
+    <section className="alert-generator" aria-label="Alert generator">
+      <h2>Alert generator</h2>
       <div className="alert-generator-controls">
-        <button
-          type="button"
-          aria-label="Decrease alert generation speed"
-          onClick={() => changeSpeed(-1)}
-          disabled={loading || templates.length === 0 || intervalMs >= 10000}
+        <GeneratorButton
+          label="Make alerts arrive faster"
+          onClick={() => changeSpeed('faster')}
+          disabled={controlsDisabled || !canSpeedUp}
         >
           −
-        </button>
+        </GeneratorButton>
         <span
           className="alert-generator-interval"
-          aria-label={`New alert every ${intervalMs / 1000} seconds`}
+          aria-label={`New alert every ${intervalLabel}`}
           aria-live="polite"
         >
-          {intervalMs / 1000}s
+          {intervalLabel}
         </span>
-        <button
-          type="button"
-          aria-label="Increase alert generation speed"
-          onClick={() => changeSpeed(1)}
-          disabled={loading || templates.length === 0 || intervalMs <= 1000}
+        <GeneratorButton
+          label="Make alerts arrive slower"
+          onClick={() => changeSpeed('slower')}
+          disabled={controlsDisabled || !canSlowDown}
         >
           +
-        </button>
-        <button
-          type="button"
-          onClick={() => setRunning((current) => !current)}
-          disabled={loading || templates.length === 0}
+        </GeneratorButton>
+        <GeneratorButton
+          label={running ? 'Pause alert generator' : 'Resume alert generator'}
+          onClick={toggleRunning}
+          disabled={controlsDisabled}
+          className="alert-generator-toggle"
         >
           {running ? 'Pause' : 'Resume'}
-        </button>
+        </GeneratorButton>
+        <GeneratorButton
+          label="Reset temporary alert list and pause generator"
+          onClick={onReset}
+          disabled={loading}
+          className="alert-generator-reset"
+        >
+          Reset
+        </GeneratorButton>
       </div>
     </section>
   )

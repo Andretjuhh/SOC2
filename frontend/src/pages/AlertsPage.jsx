@@ -1,13 +1,17 @@
-function AlertsPage(props) {
-  const filteredEvents = props.filteredEvents
-  const totalEvents = props.totalEvents
-  const loading = props.loading
-  const error = props.error
-  const severityFilter = props.severityFilter
-  const setSeverityFilter = props.setSeverityFilter
+import useAlertData from '../features/alerts/useAlertData'
+
+function AlertsPage() {
+  const {
+    filteredEvents,
+    alerts,
+    loading,
+    error,
+    severityFilter,
+    setSeverityFilter,
+  } = useAlertData()
 
   return (
-    <section id="activity">
+    <section id="alert">
     <select className="date-range" aria-label="Date range">
         <option value="option1">Last 24 hours</option>
         <option value="option2">Last 48 hours</option>
@@ -55,7 +59,7 @@ function AlertsPage(props) {
             </tbody>
           </table>
         </div>
-        <div className="table-footer"><span>Showing {filteredEvents.length} of {totalEvents} alerts</span><button type="button" className="pagination-button" disabled>‹</button><button type="button" className="pagination-button" disabled>›</button></div>
+        <div className="table-footer"><span>Showing {filteredEvents.length} of {alerts.length} alerts</span><button type="button" className="pagination-button" disabled>‹</button><button type="button" className="pagination-button" disabled>›</button></div>
       </section>
 
       <footer className="dashboard-footer"><span>Sentinel SOC <span className="footer-divider">·</span> Demo dashboard with sample data</span><span>Last updated just now <i className="status-dot" /></span></footer>

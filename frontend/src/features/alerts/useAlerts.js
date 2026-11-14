@@ -36,7 +36,6 @@ export default function useAlerts(query) {
           time: new Date(alert.detectionTime).toLocaleTimeString(),
           closedTime: alert.closedTime ? new Date(alert.closedTime).toLocaleString() : null,
         }))
-        setAlerts(mappedAlerts)
         setTestTemplates(mappedAlerts)
       } catch (requestError) {
         if (requestError.name !== 'AbortError') {
@@ -63,6 +62,9 @@ export default function useAlerts(query) {
   const addAlert = useCallback((alert) => {
     setAlerts((currentAlerts) => [alert, ...currentAlerts])
   }, [])
+  const clearAlerts = useCallback(() => {
+    setAlerts([])
+  }, [])
 
   // Return the data and setters that the app's pages need.
   return {
@@ -75,5 +77,6 @@ export default function useAlerts(query) {
     setSeverityFilter,
     metrics,
     addAlert,
+    clearAlerts,
   }
 }

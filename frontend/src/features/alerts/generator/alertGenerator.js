@@ -5,14 +5,13 @@ export function startAlertGenerator(templates, onAlert, intervalMs) {
     return () => {}
   }
 
-  nextGeneratedId = Math.max(nextGeneratedId, ...templates.map((alert) => alert.id)) + 1
   const timerId = window.setInterval(() => {
     const template = templates[Math.floor(Math.random() * templates.length)]
     const now = new Date()
 
     onAlert({
       ...template,
-      id: nextGeneratedId++,
+      id: `generated-${nextGeneratedId++}`,
       status: 'New',
       time: now.toLocaleTimeString(),
       closedTime: null,

@@ -1,11 +1,13 @@
 import Icon from '../layouts/Icon.jsx'
 import AlertGeneratorPanel from '../features/alerts/generator/AlertGeneratorPanel'
+import useAlertData from '../features/alerts/useAlertData'
 
 const chartPoints = '0,118 40,108 80,112 120,78 160,88 200,62 240,74 280,44 320,56 360,30 400,48 440,37 480,55 520,23 560,39 600,15'
 
-function OverviewPage({ alertMetrics, loading, error, testAlerts, onAlertGenerated }) {
-  const activeCount = alertMetrics.activeCount
-  const severityCounts = alertMetrics.severityCounts
+function OverviewPage() {
+  const { metrics, loading, error, testTemplates, generator, resetAlertList } = useAlertData()
+  const activeCount = metrics.activeCount
+  const severityCounts = metrics.severityCounts
   const displayedCount = loading || error ? '—' : activeCount
   const percentage = (severity) => loading || error || activeCount === 0 ? 0: Math.round((severityCounts[severity] / activeCount) * 1000) / 10
   const displayedSeverityCount = (severity) => loading || error ? '—' : severityCounts[severity]
@@ -50,10 +52,8 @@ function OverviewPage({ alertMetrics, loading, error, testAlerts, onAlertGenerat
 
        <section className="insights-grid">
         <article className="panel threat-panel">
-          <div className="panel-heading">
             <div><h2>Threat activity</h2><p>Events detected over the last 24 hours</p></div>
             <button className="panel-menu" type="button" aria-label="Threat activity options"><Icon name="more" /></button>
-          </div>
           <div className="chart-legend"><span><i className="legend-dot detected" /> Detected events</span><span><i className="legend-dot investigated" /> Investigated</span></div>
           <div className="chart-wrap" role="img" aria-label="Threat activity chart, showing detected events and investigations over the last 24 hours">
             <div className="chart-y-labels"><span>400</span><span>300</span><span>200</span><span>100</span><span>0</span></div>
@@ -74,7 +74,7 @@ function OverviewPage({ alertMetrics, loading, error, testAlerts, onAlertGenerat
         </article>
 
         <article className="panel breakdown-panel">
-          <div className="panel-heading"><div><h2>Alert breakdown</h2><p>Active alerts by severity</p></div><button className="panel-menu" type="button" aria-label="Alert breakdown options"><Icon name="more" /></button></div>
+          <div><h2>Alert breakdown</h2><p>Active alerts by severity</p></div><button className="panel-menu" type="button" aria-label="Alert breakdown options"><Icon name="more" /></button>
           <div className="severity-total"><strong>{displayedCount}</strong><span>Active alerts</span></div>
           {error && <p role="status">{error}</p>}
           <div className="severity-bar" aria-label={`${breakdownLabel} active alerts`}>
@@ -91,7 +91,12 @@ function OverviewPage({ alertMetrics, loading, error, testAlerts, onAlertGenerat
           </div>
         </article>
       </section>
-      <AlertGeneratorPanel templates={testAlerts} onAlert={onAlertGenerated} loading={loading} />
+      <AlertGeneratorPanel
+        generator={generator}
+        templates={testTemplates}
+        loading={loading}
+        onReset={resetAlertList}
+      />
       </>
   )
 }
