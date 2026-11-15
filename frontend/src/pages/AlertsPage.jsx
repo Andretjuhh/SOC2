@@ -1,4 +1,5 @@
 import useAlertData from '../features/alerts/useAlertData'
+import AlertClaimAction from '../features/alerts/ownership/AlertClaimAction'
 
 function AlertsPage() {
   const {
@@ -8,6 +9,7 @@ function AlertsPage() {
     error,
     severityFilter,
     setSeverityFilter,
+    claimAlert,
   } = useAlertData()
 
   return (
@@ -35,7 +37,7 @@ function AlertsPage() {
         </div>
         <div className="table-scroll">
           <table className="alerts-table">
-            <thead><tr><th>EVENT</th><th>SEVERITY</th><th>OWNER</th><th>AFFECTED ASSET</th><th>DETECTED</th><th>CLOSED</th></tr></thead>
+            <thead><tr><th>EVENT</th><th>SEVERITY</th><th>OWNER</th><th>AFFECTED ASSET</th><th>DETECTED</th><th>CLOSED</th><th>CLAIM</th></tr></thead>
             <tbody>
               {filteredEvents.map((event) => (
                 <tr key={event.id}>
@@ -45,16 +47,22 @@ function AlertsPage() {
                   <td className="asset-cell">{event.target}</td>
                   <td className="time-cell">{event.time}</td>
                   <td className="time-cell">{event.closedTime ?? '—'}</td>
+                  <td className="claim-cell">
+                    <AlertClaimAction
+                      claimedByYou={event.claimedByYou}
+                      onClaim={() => claimAlert(event.id)}
+                    />
+                  </td>
                 </tr>
               ))}
               {loading && (
-                <tr><td className="empty-state" colSpan="6">Loading alerts…</td></tr>
+                <tr><td className="empty-state" colSpan="7">Loading alerts…</td></tr>
               )}
               {!loading && error && (
-                <tr><td className="empty-state" colSpan="6">{error}</td></tr>
+                <tr><td className="empty-state" colSpan="7">{error}</td></tr>
               )}
               {!loading && !error && filteredEvents.length === 0 && (
-                <tr><td className="empty-state" colSpan="6">No alerts match your search and filters.</td></tr>
+                <tr><td className="empty-state" colSpan="7">No alerts match your search and filters.</td></tr>
               )}
             </tbody>
           </table>

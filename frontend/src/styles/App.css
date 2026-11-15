@@ -958,6 +958,10 @@
   color: #e0d4c8 !important;
 }
 
+.claim-cell {
+  min-width: 145px;
+}
+
 .alerts-table th:last-child,
 .alerts-table td:last-child {
   padding-right: 17px;

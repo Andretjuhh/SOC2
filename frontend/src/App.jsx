@@ -5,7 +5,6 @@ function App() {
   const { query, setQuery } = useSearchQuery()
 
   return <AppRoutes query={query} onQueryChange={setQuery} />
-
 }
 
 export default App

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { filterAlerts } from './filterAlerts'
 import { getAlertMetrics } from './getAlertMetrics'
+import useAlertOwnership from './ownership/useAlertOwnership'
 
 export default function useAlerts(query) {
   // useState keeps these values between renders; setters update the UI.
@@ -62,6 +63,7 @@ export default function useAlerts(query) {
   const addAlert = useCallback((alert) => {
     setAlerts((currentAlerts) => [alert, ...currentAlerts])
   }, [])
+  const { claimAlert } = useAlertOwnership(setAlerts)
   const clearAlerts = useCallback(() => {
     setAlerts([])
   }, [])
@@ -77,6 +79,7 @@ export default function useAlerts(query) {
     setSeverityFilter,
     metrics,
     addAlert,
+    claimAlert,
     clearAlerts,
   }
 }
