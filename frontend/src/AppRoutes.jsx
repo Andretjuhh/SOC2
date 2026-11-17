@@ -9,7 +9,7 @@ import OverviewPage from './pages/OverviewPage'
 import TicketPage from './pages/TicketPage'
 import AppLayout from './layouts/AppLayout'
 
-import AlertsProvider from './features/alerts/AlertsProvider'
+import AlertsProvider from './features/alerts/state/AlertsProvider'
 
 function AppRoutes({ query, onQueryChange }) {
   return (

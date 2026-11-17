@@ -1,4 +1,4 @@
-import useAlertData from '../features/alerts/useAlertData'
+import useAlertData from '../features/alerts/state/useAlertData'
 import AlertClaimAction from '../features/alerts/ownership/AlertClaimAction'
 
 function AlertsPage() {
