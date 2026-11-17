@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { filterAlerts } from './filterAlerts'
-import { getAlertMetrics } from './getAlertMetrics'
-import useAlertOwnership from './ownership/useAlertOwnership'
+import { filterAlerts } from '../utils/filterAlerts'
+import { getAlertMetrics } from '../utils/getAlertMetrics'
+import useAlertOwnership from '../ownership/useAlertOwnership'
 
 async function fetchAlerts(signal) {
   const requestConfig = { signal }

@@ -1,6 +1,6 @@
 import Icon from './Icon.jsx'
 import { NavLink } from 'react-router-dom'
-import useAlertData from '../features/alerts/useAlertData'
+import useAlertData from '../features/alerts/state/useAlertData'
 
 function Sidebar() {
   const { metrics, loading } = useAlertData()
