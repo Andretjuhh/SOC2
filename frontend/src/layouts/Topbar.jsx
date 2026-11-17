@@ -8,8 +8,8 @@ function Topbar({ query, onQueryChange }) {
         <label className="search-box">
           <Icon name="search" size={17} />
           <input
-            aria-label="Search"
-            placeholder="Search"
+            aria-label="Search alerts"
+            placeholder="Search alerts..."
             value={query}
             onChange={(event) => onQueryChange(event.target.value)}
           />

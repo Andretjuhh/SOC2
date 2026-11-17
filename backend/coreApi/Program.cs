@@ -1,3 +1,5 @@
+using coreApi.Alerts;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
@@ -14,5 +16,7 @@ if (app.Environment.IsDevelopment())
 app.MapGet("/health", () => TypedResults.Ok(new { status = "Healthy" }))
     .WithName("HealthCheck")
     .WithTags("Health");
+
+app.MapAlertEndpoints();
 
 app.Run();

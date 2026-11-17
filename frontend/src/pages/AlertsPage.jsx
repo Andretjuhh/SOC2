@@ -1,26 +1,152 @@
+import { useEffect, useMemo, useState } from 'react'
 import Icon from '../layouts/Icon.jsx'
 
 const chartPoints = '0,118 40,108 80,112 120,78 160,88 200,62 240,74 280,44 320,56 360,30 400,48 440,37 480,55 520,23 560,39 600,15'
+const priorities = ['Critical', 'High', 'Medium', 'Low']
+const statuses = ['Open', 'Investigating', 'Resolved']
 
-function AlertsPage(props) {
-  const filteredEvents = props.filteredEvents
-  const severityFilter = props.severityFilter
-  const setSeverityFilter = props.setSeverityFilter
+function enumLabel(value, labels) {
+  if (typeof value === 'number') {
+    return labels[value] ?? 'Unknown'
+  }
+
+  return typeof value === 'string' ? value : 'Unknown'
+}
+
+function getDateBounds(days) {
+  const today = new Date()
+  const to = today.toISOString().slice(0, 10)
+  const from = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() - days + 1))
+
+  return { from: from.toISOString().slice(0, 10), to }
+}
+
+function AlertsPage({ query, onQueryChange }) {
+  const [alerts, setAlerts] = useState([])
+  const [totalCount, setTotalCount] = useState(0)
+  const [priorityFilter, setPriorityFilter] = useState('All events')
+  const [statusFilter, setStatusFilter] = useState('All statuses')
+  const [dateRange, setDateRange] = useState('')
+  const [sortOrder, setSortOrder] = useState('newest')
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    async function loadAlerts() {
+      const params = new URLSearchParams({ page: '1', pageSize: '100' })
+      if (priorityFilter !== 'All events') params.set('priority', priorityFilter)
+      if (statusFilter !== 'All statuses') params.set('status', statusFilter)
+      if (dateRange) {
+        const bounds = getDateBounds(Number(dateRange))
+        params.set('from', bounds.from)
+        params.set('to', bounds.to)
+      }
+
+      setIsLoading(true)
+      setError('')
+      setAlerts([])
+      setTotalCount(0)
+
+      try {
+        const response = await fetch(`/api/alerts?${params}`, { signal: controller.signal })
+        let payload
+
+        try {
+          payload = await response.json()
+        } catch {
+          throw new Error(`De API stuurde geen geldig antwoord (HTTP ${response.status}).`)
+        }
+
+        if (!response.ok) {
+          const validationMessages = Object.values(payload.errors ?? {}).flat().join(' ')
+          throw new Error(payload.detail || validationMessages || `Ophalen van alerts is mislukt (HTTP ${response.status}).`)
+        }
+
+        if (!Array.isArray(payload.items) || typeof payload.totalCount !== 'number') {
+          throw new Error('De API stuurde een onverwacht antwoord voor alerts.')
+        }
+
+        setAlerts(payload.items)
+        setTotalCount(payload.totalCount)
+      } catch (requestError) {
+        if (requestError.name === 'AbortError') return
+
+        setAlerts([])
+        setTotalCount(0)
+        const message = requestError instanceof TypeError
+          ? 'De API is niet bereikbaar. Controleer of de backend draait en probeer het opnieuw.'
+          : requestError instanceof Error
+            ? requestError.message
+            : 'Er is een onbekende fout opgetreden bij het ophalen van alerts.'
+        setError(message)
+      } finally {
+        if (!controller.signal.aborted) setIsLoading(false)
+      }
+    }
+
+    loadAlerts()
+    return () => controller.abort()
+  }, [priorityFilter, statusFilter, dateRange])
+
+  const filteredAlerts = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase()
+
+    return alerts
+      .filter((alert) => {
+        if (!normalizedQuery) return true
+
+        const priority = enumLabel(alert.priority, priorities)
+        const status = enumLabel(alert.status, statuses)
+        const searchableMetadata = [
+          alert.id,
+          alert.title,
+          alert.source,
+          alert.customerId,
+          priority,
+          status,
+          alert.createdAt,
+        ].join(' ').toLowerCase()
+
+        return searchableMetadata.includes(normalizedQuery)
+      })
+      .sort((left, right) => {
+        const difference = new Date(left.createdAt) - new Date(right.createdAt)
+        return sortOrder === 'newest' ? -difference : difference
+      })
+  }, [alerts, query, sortOrder])
+
+  const severityCounts = useMemo(() => {
+    return priorities.reduce((counts, priority) => {
+      counts[priority] = alerts.filter((alert) => enumLabel(alert.priority, priorities) === priority).length
+      return counts
+    }, {})
+  }, [alerts])
+
+  const resetFilters = () => {
+    setPriorityFilter('All events')
+    setStatusFilter('All statuses')
+    setDateRange('')
+    setSortOrder('newest')
+    onQueryChange('')
+  }
 
   return (
     <section id="activity">
- <select className="date-range" aria-label="Date range">
-        <option value="option1">Last 24 hours</option>
-        <option value="option2">Last 48 hours</option>
-        <option value="option2">Last 7 days</option>
-        <option value="option2">Last 30 days</option>
+      <select className="date-range" aria-label="Filter by date" value={dateRange} onChange={(event) => setDateRange(event.target.value)}>
+        <option value="">All dates</option>
+        <option value="1">Today (UTC)</option>
+        <option value="2">Last 2 days (UTC)</option>
+        <option value="7">Last 7 days (UTC)</option>
+        <option value="30">Last 30 days (UTC)</option>
       </select>
 
       <section className="metric-grid" aria-label="Security metrics">
         <article className="metric-card">
           <div className="metric-top"><span>Active alerts</span><span className="metric-icon alert-icon"><Icon name="shield" size={17} /></span></div>
-          <div className="metric-value">24 <span className="metric-trend negative"><Icon name="arrow" size={13} /> 12%</span></div>
-          <div className="metric-foot"><span className="severity-dot critical-dot" /> 3 critical <span className="foot-divider">·</span> 8 high</div>
+          <div className="metric-value">{totalCount}</div>
+          <div className="metric-foot">Alerts matching API filters</div>
         </article>
         <article className="metric-card">
           <div className="metric-top"><span>Mean time to respond</span><span className="metric-icon time-icon"><Icon name="clock" size={17} /></span></div>
@@ -65,59 +191,104 @@ function AlertsPage(props) {
         </article>
 
         <article className="panel breakdown-panel">
-          <div className="panel-heading"><div><h2>Alert breakdown</h2><p>By severity · last 24 hours</p></div><button className="panel-menu" type="button" aria-label="Alert breakdown options"><Icon name="more" /></button></div>
-          <div className="severity-total"><strong>24</strong><span>Total alerts</span></div>
-          <div className="severity-bar" aria-label="3 critical, 8 high, 9 medium, 4 low alerts">
-            <span className="bar-critical" /><span className="bar-high" /><span className="bar-medium" /><span className="bar-low" />
+          <div className="panel-heading"><div><h2>Alert breakdown</h2><p>By priority · loaded API results</p></div><button className="panel-menu" type="button" aria-label="Alert breakdown options"><Icon name="more" /></button></div>
+          <div className="severity-total"><strong>{alerts.length}</strong><span>Loaded alerts</span></div>
+          <div className="severity-bar" aria-label="Alert breakdown by priority">
+            {priorities.map((priority) => (
+              <span
+                className={`bar-${priority.toLowerCase()}`}
+                key={priority}
+                style={{ width: `${alerts.length ? severityCounts[priority] / alerts.length * 100 : 0}%` }}
+              />
+            ))}
           </div>
           <div className="severity-list">
-            <div><span><i className="severity-dot critical-dot" />Critical</span><strong>3</strong><small>12.5%</small></div>
-            <div><span><i className="severity-dot high-dot" />High</span><strong>8</strong><small>33.3%</small></div>
-            <div><span><i className="severity-dot medium-dot" />Medium</span><strong>9</strong><small>37.5%</small></div>
-            <div><span><i className="severity-dot low-dot" />Low</span><strong>4</strong><small>16.7%</small></div>
+            {priorities.map((priority) => (
+              <div key={priority}>
+                <span><i className={`severity-dot ${priority.toLowerCase()}-dot`} />{priority}</span>
+                <strong>{severityCounts[priority]}</strong>
+                <small>{alerts.length ? `${(severityCounts[priority] / alerts.length * 100).toFixed(1)}%` : '0%'}</small>
+              </div>
+            ))}
           </div>
         </article>
       </section>
 
       <section className="panel alerts-panel" id="alerts">
         <div className="alerts-heading">
-          <div><div className="alerts-title"><h2>Recent alerts</h2><span className="alert-count">24</span></div><p>Review and triage the latest security events.</p></div>
+          <div><div className="alerts-title"><h2>Recent alerts</h2><span className="alert-count">{filteredAlerts.length}</span></div><p>Review and triage the latest security events.</p></div>
           <a className="view-all" href="#alerts">View all alerts <Icon name="chevron" size={15} /></a>
         </div>
-        <div className="alert-filters" aria-label="Filter alerts by severity">
-          {['All events', 'Critical', 'High', 'Medium', 'Low'].map((filter) => (
+        <div className="alert-filters" aria-label="Filter and sort alerts">
+          {['All events', ...priorities].map((filter) => (
             <button
-              className={`filter-chip${severityFilter === filter ? ' selected' : ''}`}
+              className={`filter-chip${priorityFilter === filter ? ' selected' : ''}`}
               key={filter}
-              onClick={() => setSeverityFilter(filter)}
+              onClick={() => setPriorityFilter(filter)}
               type="button"
-              aria-pressed={severityFilter === filter}
+              aria-pressed={priorityFilter === filter}
             >
               {filter === 'All events' ? filter : <><i className={`severity-dot ${filter.toLowerCase()}-dot`} />{filter}</>}
             </button>
           ))}
+          <span className="filter-divider" aria-hidden="true" />
+          {['All statuses', ...statuses].map((filter) => (
+            <button
+              className={`filter-chip${statusFilter === filter ? ' selected' : ''}`}
+              key={filter}
+              onClick={() => setStatusFilter(filter)}
+              type="button"
+              aria-pressed={statusFilter === filter}
+            >
+              {filter}
+            </button>
+          ))}
+          <label className="filter-control">
+            <span>Sort</span>
+            <select className="filter-select" value={sortOrder} onChange={(event) => setSortOrder(event.target.value)}>
+              <option value="newest">Newest first</option>
+              <option value="oldest">Oldest first</option>
+            </select>
+          </label>
+          <button
+            className="reset-filters"
+            disabled={priorityFilter === 'All events' && statusFilter === 'All statuses' && !dateRange && sortOrder === 'newest' && !query.trim()}
+            onClick={resetFilters}
+            type="button"
+          >
+            Reset filters
+          </button>
         </div>
         <div className="table-scroll">
           <table className="alerts-table">
-            <thead><tr><th>EVENT</th><th>SOURCE</th><th>SEVERITY</th><th>AFFECTED ASSET</th><th>STATUS</th><th>TIME</th></tr></thead>
+            <thead><tr><th>EVENT</th><th>SOURCE</th><th>PRIORITY</th><th>CUSTOMER</th><th>STATUS</th><th>TIME</th></tr></thead>
             <tbody>
-              {filteredEvents.map((event) => (
-                <tr key={`${event.time}-${event.type}`}>
-                  <td><span className={`event-marker ${event.severity.toLowerCase()}`} /><strong>{event.type}</strong></td>
-                  <td className="muted-cell">{event.source}</td>
-                  <td><span className={`severity-badge ${event.severity.toLowerCase()}`}><i className={`severity-dot ${event.severity.toLowerCase()}-dot`} />{event.severity}</span></td>
-                  <td className="asset-cell">{event.target}</td>
-                  <td><span className={`status-badge ${event.status.toLowerCase()}`}><i />{event.status}</span></td>
-                  <td className="time-cell">{event.time}</td>
-                </tr>
-              ))}
-              {filteredEvents.length === 0 && (
+              {isLoading ? (
+                <tr><td className="empty-state" colSpan="6" role="status">Loading alerts…</td></tr>
+              ) : error ? (
+                <tr><td className="empty-state error-state" colSpan="6" role="alert">{error}</td></tr>
+              ) : filteredAlerts.map((alert) => {
+                const priority = enumLabel(alert.priority, priorities)
+                const status = enumLabel(alert.status, statuses)
+
+                return (
+                  <tr key={alert.id}>
+                    <td><span className={`event-marker ${priority.toLowerCase()}`} /><strong>{alert.title}</strong></td>
+                    <td className="muted-cell">{alert.source}</td>
+                    <td><span className={`severity-badge ${priority.toLowerCase()}`}><i className={`severity-dot ${priority.toLowerCase()}-dot`} />{priority}</span></td>
+                    <td className="asset-cell">{alert.customerId}</td>
+                    <td><span className={`status-badge ${status.toLowerCase()}`}><i />{status}</span></td>
+                    <td className="time-cell">{new Date(alert.createdAt).toLocaleString()}</td>
+                  </tr>
+                )
+              })}
+              {!isLoading && !error && filteredAlerts.length === 0 && (
                 <tr><td className="empty-state" colSpan="6">No alerts match your search and filters.</td></tr>
               )}
             </tbody>
           </table>
         </div>
-        <div className="table-footer"><span>Showing {filteredEvents.length} of 24 alerts</span><button type="button" className="pagination-button" disabled>‹</button><button type="button" className="pagination-button" disabled>›</button></div>
+        <div className="table-footer"><span>{isLoading ? 'Loading alerts…' : error ? 'Alerts could not be loaded' : `Showing ${filteredAlerts.length} of ${totalCount} alerts`}</span></div>
       </section>
 
       <footer className="dashboard-footer"><span>Sentinel SOC <span className="footer-divider">·</span> Demo dashboard with sample data</span><span>Last updated just now <i className="status-dot" /></span></footer>

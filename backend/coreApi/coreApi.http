@@ -4,3 +4,23 @@ GET {{coreApi_HostAddress}}/health
 Accept: application/json
 
 ###
+
+GET {{coreApi_HostAddress}}/api/alerts
+Accept: application/json
+
+###
+
+GET {{coreApi_HostAddress}}/api/alerts?priority=High&status=Open
+Accept: application/json
+
+###
+
+GET {{coreApi_HostAddress}}/api/alerts?customerId=acme&from=2026-11-03&to=2026-11-03
+Accept: application/json
+
+###
+
+GET {{coreApi_HostAddress}}/api/alerts?priority=Critical&customerId=acme&status=Investigating&page=1&pageSize=10
+Accept: application/json
+
+###
