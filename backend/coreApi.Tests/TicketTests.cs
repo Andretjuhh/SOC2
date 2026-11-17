@@ -12,7 +12,8 @@ using Xunit;
 
 namespace CoreApi.Tests;
 
-public sealed class TicketTests(TicketTestDatabase database) : IClassFixture<TicketTestDatabase>
+[Collection("Shared database")]
+public sealed class TicketTests(TicketTestDatabase database)
 {
     // ---------- Hulpmethodes ----------
 

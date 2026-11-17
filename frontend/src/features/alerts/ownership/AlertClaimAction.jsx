@@ -1,6 +1,6 @@
 import styles from './AlertClaimAction.module.css'
 
-function AlertClaimAction({ claimedByYou, onClaim }) {
+function AlertClaimAction({ claimedByYou, claimedByOther, owner, claiming, onClaim }) {
   if (claimedByYou) {
     return (
       <span className={styles.claimed} aria-label="Claimed by you">
@@ -10,9 +10,17 @@ function AlertClaimAction({ claimedByYou, onClaim }) {
     )
   }
 
+  if (claimedByOther) {
+    return (
+      <span className={styles.claimed} aria-label={`Claimed by ${owner}`}>
+        Claimed by {owner}
+      </span>
+    )
+  }
+
   return (
-    <button className={styles.button} onClick={onClaim} type="button">
-      Claim
+    <button className={styles.button} onClick={onClaim} type="button" disabled={claiming}>
+      {claiming ? 'Claiming…' : 'Claim'}
     </button>
   )
 }

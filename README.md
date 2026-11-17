@@ -138,11 +138,16 @@ Voer vanuit de repositorymap uit:
 
 ```powershell
 dotnet run --project backend\coreApi\coreApi.csproj
+
 dotnet test backend/coreApi.Tests/coreApi.Tests.csproj
+
 npm.cmd --prefix frontend run build
-npm.cmd --prefix frontend run lint
+npm.cmd --prefix frontend run dev
 
 ```
+
+De backend is beschikbaar op `http://localhost:5294`. Open Swagger handmatig via
+`http://localhost:5294/swagger`; de browser wordt niet automatisch geopend.
 
 De backendtests gebruiken een aparte EF InMemory-testdatabase en hebben geen lokale SQL Server nodig.
 Test handmatig ook een geldig account, een fout wachtwoord, een inactief account en een onbereikbare backend.

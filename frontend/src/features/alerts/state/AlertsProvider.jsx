@@ -7,12 +7,12 @@ import useAlertGenerator from '../generator/useAlertGenerator'
 function AlertsProvider({ query, children }) {
   const alertData = useAlerts(query)
   const generator = useAlertGenerator(alertData.testTemplates, alertData.addAlert)
-  const { clearAlerts } = alertData
+  const { refreshAlerts } = alertData
   const { pause } = generator
   const resetAlertList = useCallback(() => {
     pause()
-    clearAlerts()
-  }, [clearAlerts, pause])
+    refreshAlerts()
+  }, [pause, refreshAlerts])
 
   return (
     <AlertsContext.Provider value={{ ...alertData, generator, resetAlertList }}>

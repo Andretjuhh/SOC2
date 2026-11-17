@@ -4,3 +4,35 @@ GET {{coreApi_HostAddress}}/health
 Accept: application/json
 
 ###
+
+@alertId = 1
+
+### Create an alert (run after signing in)
+POST {{coreApi_HostAddress}}/api/alerts
+Content-Type: application/json
+
+{
+  "event": "Concurrent claim test",
+  "severity": "High",
+  "affectedAsset": "test-host",
+  "detectionTime": "2026-11-17T14:00:00Z"
+}
+
+# Set alertId to the ID returned by the create request before testing claims.
+### List alerts for the signed-in customer
+GET {{coreApi_HostAddress}}/api/alerts
+Accept: application/json
+
+### Claim an alert as the signed-in user
+POST {{coreApi_HostAddress}}/api/alerts/{{alertId}}/claim
+Accept: application/json
+
+# Run this request from a separate session signed in as another user.
+# If the first request already claimed the alert, this request returns 409 Conflict.
+### Competing claim from a second user
+POST {{coreApi_HostAddress}}/api/alerts/{{alertId}}/claim
+Accept: application/json
+
+### List alert templates for the generator
+GET {{coreApi_HostAddress}}/api/alerts/templates
+Accept: application/json

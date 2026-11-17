@@ -35,6 +35,9 @@ namespace coreApi.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<Guid?>("AssignedUserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime?>("ClosedTime")
                         .HasColumnType("datetime2");
 
@@ -55,6 +58,8 @@ namespace coreApi.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.HasKey("AlertID");
+
+                    b.HasIndex("AssignedUserId");
 
                     b.HasIndex("KlantID");
 
@@ -399,11 +404,18 @@ namespace coreApi.Migrations
 
             modelBuilder.Entity("CoreApi.Domain.Alert", b =>
                 {
+                    b.HasOne("CoreApi.Domain.Gebruiker", "AssignedUser")
+                        .WithMany("AssignedAlerts")
+                        .HasForeignKey("AssignedUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("CoreApi.Domain.Klant", "Klant")
                         .WithMany("Alerts")
                         .HasForeignKey("KlantID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("AssignedUser");
 
                     b.Navigation("Klant");
                 });
@@ -488,6 +500,11 @@ namespace coreApi.Migrations
                         .HasForeignKey("RollenRolID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("CoreApi.Domain.Gebruiker", b =>
+                {
+                    b.Navigation("AssignedAlerts");
                 });
 
             modelBuilder.Entity("CoreApi.Domain.Klant", b =>
