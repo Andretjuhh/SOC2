@@ -1,0 +1,217 @@
+.mfa-page {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 24px 16px;
+  background:
+    radial-gradient(900px 420px at 50% -10%, #1f1b3d 0%, transparent 70%),
+    var(--page);
+  color: var(--text);
+}
+
+.mfa-card {
+  display: flex;
+  width: min(100%, 400px);
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 28px 24px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--panel);
+  text-align: center;
+}
+
+.mfa-brand {
+  color: #f3f2fb;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.mfa-icon {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  margin: 26px 0 16px;
+  place-items: center;
+  border: 1px solid #6259c4;
+  border-radius: 12px;
+  color: #b6adff;
+  background: linear-gradient(145deg, #332e65, #201e36);
+}
+
+.mfa-card h1 {
+  margin: 0;
+  color: #f0f0f6;
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+
+.mfa-uitleg {
+  margin: 10px 0 24px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.mfa-card form {
+  width: 100%;
+}
+
+.mfa-velden {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.mfa-veld {
+  width: 100%;
+  height: 52px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  background: #12141c;
+  font-size: 22px;
+  font-weight: 600;
+  text-align: center;
+  caret-color: var(--purple);
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.mfa-veld:focus {
+  border-color: #6259c4;
+  background: #171527;
+  outline: 0;
+}
+
+.mfa-veld-fout {
+  border-color: #4a2d37;
+  background: #2d2028;
+}
+
+.mfa-fout {
+  min-height: 34px;
+  margin: 12px 0 8px;
+  color: #f2939c;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.mfa-knop {
+  width: 100%;
+  height: 40px;
+  border: 1px solid #6259c4;
+  border-radius: 7px;
+  color: #f3f2fb;
+  background: linear-gradient(145deg, #6358d9, #4a41b0);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 0.15s;
+}
+
+.mfa-knop:hover:not(:disabled) {
+  filter: brightness(1.12);
+}
+
+.mfa-knop:disabled {
+  border-color: var(--border);
+  color: var(--subtle);
+  background: #181b27;
+  cursor: not-allowed;
+}
+
+.mfa-timer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 18px 0 4px;
+  color: var(--subtle);
+  font-size: 10px;
+}
+
+.mfa-terug {
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 6px;
+  color: #a79fff;
+  background: transparent;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.mfa-terug:hover {
+  color: #d4cfff;
+  background: #1b1e29;
+}
+
+@media (max-width: 400px) {
+  .mfa-card { padding: 26px 16px 20px; }
+  .mfa-velden { gap: 6px; }
+  .mfa-veld { height: 46px; font-size: 19px; }
+}
+
+/* --- koppelscherm (Microsoft Authenticator) --- */
+.mfa-card form { text-align: left; }
+
+.mfa-label {
+  display: block;
+  margin: 12px 0 6px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.mfa-input {
+  width: 100%;
+  height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--text);
+  background: #12141c;
+  font-size: 12px;
+}
+
+.mfa-input:focus {
+  border-color: #6259c4;
+  outline: 0;
+}
+
+.mfa-stappen {
+  margin: 18px 0 14px;
+  padding-left: 18px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.8;
+  text-align: left;
+}
+
+.mfa-stappen strong { color: var(--text); font-weight: 600; }
+
+.mfa-qr {
+  border-radius: 8px;
+  background: #fff;
+}
+
+.mfa-sleutel {
+  display: block;
+  max-width: 100%;
+  margin: 4px 0 20px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: #c5bfff;
+  background: #12141c;
+  font: 12px ui-monospace, SFMono-Regular, Consolas, monospace;
+  letter-spacing: 1px;
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+
+.mfa-link {
+  display: grid;
+  place-items: center;
+  text-decoration: none;
+}
