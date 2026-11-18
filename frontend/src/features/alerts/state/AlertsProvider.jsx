@@ -1,8 +1,8 @@
 import { useCallback } from 'react'
 
-import useAlerts from './useAlerts'
 import AlertsContext from './AlertsContext'
-import useAlertGenerator from './generator/useAlertGenerator'
+import useAlerts from './useAlerts'
+import useAlertGenerator from '../generator/useAlertGenerator'
 
 function AlertsProvider({ query, children }) {
   const alertData = useAlerts(query)

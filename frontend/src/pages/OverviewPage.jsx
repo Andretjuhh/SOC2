@@ -1,6 +1,6 @@
 import Icon from '../layouts/Icon.jsx'
 import AlertGeneratorPanel from '../features/alerts/generator/AlertGeneratorPanel'
-import useAlertData from '../features/alerts/useAlertData'
+import useAlertData from '../features/alerts/state/useAlertData'
 
 const chartPoints = '0,118 40,108 80,112 120,78 160,88 200,62 240,74 280,44 320,56 360,30 400,48 440,37 480,55 520,23 560,39 600,15'
 
