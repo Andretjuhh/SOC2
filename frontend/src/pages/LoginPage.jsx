@@ -1,11 +1,13 @@
 import { useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 function LoginPage() {
+  const navigate = useNavigate()
+  const { state } = useLocation()
   const [gebruikersnaam, setGebruikersnaam] = useState('')
   const [wachtwoord, setWachtwoord] = useState('')
   const [bezig, setBezig] = useState(false)
   const [fout, setFout] = useState('')
-  const [mfaChallenge, setMfaChallenge] = useState(null)
 
   async function handleLogin(event) {
     event.preventDefault()
@@ -13,7 +15,6 @@ function LoginPage() {
 
     setBezig(true)
     setFout('')
-    setMfaChallenge(null)
 
     try {
       const response = await fetch('/api/auth/login', {
@@ -38,8 +39,11 @@ function LoginPage() {
       }
 
       if (data?.mfaVereist && data.challengeId) {
-        setMfaChallenge(data)
-        setWachtwoord('')
+        // challengeId alleen in router-state (niet in de URL of opslag).
+        navigate('/mfa', {
+          replace: true,
+          state: { challengeId: data.challengeId, verlooptOp: data.verlooptOp },
+        })
       } else {
         setFout('De server gaf geen geldige inlogreactie terug.')
       }
@@ -53,6 +57,8 @@ function LoginPage() {
   return (
     <main>
       <h1>Inloggen</h1>
+
+      {state?.melding && <p role="status">{state.melding}</p>}
 
       <form onSubmit={handleLogin} aria-busy={bezig}>
         <fieldset disabled={bezig}>
@@ -87,9 +93,6 @@ function LoginPage() {
       </form>
 
       {fout && <p role="alert">{fout}</p>}
-      {mfaChallenge && (
-        <p role="status">Je inloggegevens zijn correct. Extra verificatie (MFA) is vereist; je bent nog niet ingelogd.</p>
-      )}
     </main>
   )
 }
