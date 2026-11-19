@@ -2,17 +2,16 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { filterAlerts } from '../utils/filterAlerts'
 import { getAlertMetrics } from '../utils/getAlertMetrics'
-import useAlertOwnership from '../ownership/useAlertOwnership'
 
-async function fetchAlerts(signal) {
+async function fetchAlerts(url, signal) {
   const requestConfig = { signal }
-  const response = await fetch('/api/alerts', requestConfig)
+  const response = await fetch(url, requestConfig)
 
   const requestWasSuccessful = response.ok
 
   if (requestWasSuccessful === false) {
     const statusCode = response.status
-    const errorMessage = `Loading alerts failed (${statusCode}).`
+    const errorMessage = `Request to ${url} failed (${statusCode}).`
     throw new Error(errorMessage)
   }
 
@@ -49,11 +48,13 @@ function mapAlertData(data) {
     }
 
     return {
-      id: alert.alertID,
+      id: alert.alertId ?? alert.alertID,
       type: alertType,
       severity: alert.severity,
-      status: alert.status,
+      status: alert.status ?? (hasClosedTime ? 'Closed' : 'New'),
       owner: ownerName,
+      isClaimed: hasOwner,
+      claimedByYou: alert.claimedByYou === true,
       target: alert.affectedAsset,
       time: new Date(alert.detectionTime).toLocaleTimeString(),
       closedTime: closedTimeValue,
@@ -69,16 +70,39 @@ export default function useAlerts(query) {
   const [testTemplates, setTestTemplates] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [claimNotice, setClaimNotice] = useState('')
+  const [claimingAlertId, setClaimingAlertId] = useState(null)
+
+  const refreshAlerts = useCallback(async (signal) => {
+    try {
+      const data = await fetchAlerts('/api/alerts', signal)
+      const mappedAlerts = mapAlertData(data)
+
+      setAlerts(mappedAlerts)
+      setError('')
+      return true
+    } catch (requestError) {
+      const isNotAbortError = requestError.name !== 'AbortError'
+
+      if (isNotAbortError === true) {
+        setError(requestError.message)
+      }
+
+      return false
+    }
+  }, [])
 
   useEffect(() => {
     const controller = new AbortController()
 
     async function loadAlerts() {
       try {
-        const data = await fetchAlerts(controller.signal)
-        const mappedAlerts = mapAlertData(data)
+        const [templates] = await Promise.all([
+          fetchAlerts('/api/alerts/templates', controller.signal),
+          refreshAlerts(controller.signal),
+        ])
 
-        setTestTemplates(mappedAlerts)
+        setTestTemplates(mapAlertData(templates))
       } catch (requestError) {
         const isNotAbortError = requestError.name !== 'AbortError'
 
@@ -99,7 +123,7 @@ export default function useAlerts(query) {
     return () => {
       controller.abort()
     }
-  }, [])
+  }, [refreshAlerts])
 
   const filteredEvents = useMemo(
     () => filterAlerts(alerts, query, severityFilter),
@@ -108,18 +132,62 @@ export default function useAlerts(query) {
 
   const metrics = useMemo(() => getAlertMetrics(alerts), [alerts])
 
-  const addAlert = useCallback((alert) => {
-    setAlerts((currentAlerts) => {
-      const updatedAlerts = [alert, ...currentAlerts]
-      return updatedAlerts
-    })
+  const addAlert = useCallback(async (alert) => {
+    try {
+      const response = await fetch('/api/alerts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event: alert.type,
+          severity: alert.severity,
+          affectedAsset: alert.target,
+          detectionTime: new Date().toISOString(),
+        }),
+      })
+
+      if (response.ok === false) {
+        throw new Error(`Creating alert failed (${response.status}).`)
+      }
+
+      const createdAlert = await response.json()
+      const [mappedAlert] = mapAlertData([createdAlert])
+
+      setAlerts((currentAlerts) => [mappedAlert, ...currentAlerts])
+      setError('')
+    } catch (requestError) {
+      setError(requestError.message)
+    }
   }, [])
 
-  const { claimAlert } = useAlertOwnership(setAlerts)
+  const claimAlert = useCallback(async (alertId) => {
+    setClaimNotice('')
+    setClaimingAlertId(alertId)
 
-  const clearAlerts = useCallback(() => {
-    setAlerts([])
-  }, [])
+    try {
+      const response = await fetch(`/api/alerts/${alertId}/claim`, { method: 'POST' })
+
+      if (response.status === 409) {
+        const problem = await response.json()
+        await refreshAlerts()
+        setClaimNotice(problem.detail ?? 'This alert was just claimed by another user.')
+        return
+      }
+
+      if (response.ok === false) {
+        throw new Error(`Claiming alert failed (${response.status}).`)
+      }
+
+      const claimedAlert = await response.json()
+      const [mappedAlert] = mapAlertData([claimedAlert])
+
+      setAlerts((currentAlerts) => currentAlerts.map((alert) =>
+        alert.id === mappedAlert.id ? mappedAlert : alert))
+    } catch (requestError) {
+      setClaimNotice(requestError.message)
+    } finally {
+      setClaimingAlertId(null)
+    }
+  }, [refreshAlerts])
 
   return {
     alerts,
@@ -132,6 +200,8 @@ export default function useAlerts(query) {
     metrics,
     addAlert,
     claimAlert,
-    clearAlerts,
+    refreshAlerts,
+    claimNotice,
+    claimingAlertId,
   }
 }

@@ -57,12 +57,12 @@ export default function AlertGeneratorPanel({ generator, templates, loading, onR
           {running ? 'Pause' : 'Resume'}
         </GeneratorButton>
         <GeneratorButton
-          label="Reset temporary alert list and pause generator"
+          label="Reload alerts and pause generator"
           onClick={onReset}
           disabled={loading}
           className="alert-generator-reset"
         >
-          Reset
+          Reload
         </GeneratorButton>
       </div>
     </section>
