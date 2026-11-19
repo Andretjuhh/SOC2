@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Icon from '../layouts/Icon.jsx'
+import AlertClaimAction from '../features/alerts/ownership/AlertClaimAction'
+import CreateTicketDialog from '../features/tickets/CreateTicketDialog'
 
 const chartPoints = '0,118 40,108 80,112 120,78 160,88 200,62 240,74 280,44 320,56 360,30 400,48 440,37 480,55 520,23 560,39 600,15'
 const priorities = ['Critical', 'High', 'Medium', 'Low']
@@ -23,6 +25,8 @@ function getDateBounds(days) {
 
 function AlertsPage({ query, onQueryChange }) {
   const [alerts, setAlerts] = useState([])
+  const [claimedAlerts, setClaimedAlerts] = useState({})
+  const [alertVoorTicket, setAlertVoorTicket] = useState(null)
   const [totalCount, setTotalCount] = useState(0)
   const [priorityFilter, setPriorityFilter] = useState('All events')
   const [statusFilter, setStatusFilter] = useState('All statuses')
@@ -30,6 +34,14 @@ function AlertsPage({ query, onQueryChange }) {
   const [sortOrder, setSortOrder] = useState('newest')
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
+
+  function handleTicketAangemaakt(ticket) {
+    setClaimedAlerts((current) => ({
+      ...current,
+      [alertVoorTicket.id]: ticket.ticketNummer ?? null,
+    }))
+    setAlertVoorTicket(null)
+  }
 
   useEffect(() => {
     const controller = new AbortController()
@@ -50,7 +62,7 @@ function AlertsPage({ query, onQueryChange }) {
       setTotalCount(0)
 
       try {
-        const response = await fetch(`/api/alerts?${params}`, { signal: controller.signal })
+        const response = await fetch(`/api/filtered-alerts?${params}`, { signal: controller.signal })
         let payload
 
         try {
@@ -261,12 +273,12 @@ function AlertsPage({ query, onQueryChange }) {
         </div>
         <div className="table-scroll">
           <table className="alerts-table">
-            <thead><tr><th>EVENT</th><th>SOURCE</th><th>PRIORITY</th><th>CUSTOMER</th><th>STATUS</th><th>TIME</th></tr></thead>
+            <thead><tr><th>EVENT</th><th>SOURCE</th><th>PRIORITY</th><th>CUSTOMER</th><th>STATUS</th><th>TIME</th><th>CLAIM</th></tr></thead>
             <tbody>
               {isLoading ? (
-                <tr><td className="empty-state" colSpan="6" role="status">Loading alerts…</td></tr>
+                <tr><td className="empty-state" colSpan="7" role="status">Loading alerts…</td></tr>
               ) : error ? (
-                <tr><td className="empty-state error-state" colSpan="6" role="alert">{error}</td></tr>
+                <tr><td className="empty-state error-state" colSpan="7" role="alert">{error}</td></tr>
               ) : filteredAlerts.map((alert) => {
                 const priority = enumLabel(alert.priority, priorities)
                 const status = enumLabel(alert.status, statuses)
@@ -279,17 +291,37 @@ function AlertsPage({ query, onQueryChange }) {
                     <td className="asset-cell">{alert.customerId}</td>
                     <td><span className={`status-badge ${status.toLowerCase()}`}><i />{status}</span></td>
                     <td className="time-cell">{new Date(alert.createdAt).toLocaleString()}</td>
+                    <td className="claim-cell">
+                      <AlertClaimAction
+                        claimedByYou={Object.prototype.hasOwnProperty.call(claimedAlerts, alert.id)}
+                        ticketNummer={claimedAlerts[alert.id]}
+                        onClaim={() => setAlertVoorTicket({
+                          ...alert,
+                          type: alert.title,
+                          target: alert.customerId,
+                        })}
+                      />
+                    </td>
                   </tr>
                 )
               })}
               {!isLoading && !error && filteredAlerts.length === 0 && (
-                <tr><td className="empty-state" colSpan="6">No alerts match your search and filters.</td></tr>
+                <tr><td className="empty-state" colSpan="7">No alerts match your search and filters.</td></tr>
               )}
             </tbody>
           </table>
         </div>
         <div className="table-footer"><span>{isLoading ? 'Loading alerts…' : error ? 'Alerts could not be loaded' : `Showing ${filteredAlerts.length} of ${totalCount} alerts`}</span></div>
       </section>
+
+      {alertVoorTicket && (
+        <CreateTicketDialog
+          key={alertVoorTicket.id}
+          alert={alertVoorTicket}
+          onClose={() => setAlertVoorTicket(null)}
+          onCreated={handleTicketAangemaakt}
+        />
+      )}
 
       <footer className="dashboard-footer"><span>Sentinel SOC <span className="footer-divider">·</span> Demo dashboard with sample data</span><span>Last updated just now <i className="status-dot" /></span></footer>
     </section>

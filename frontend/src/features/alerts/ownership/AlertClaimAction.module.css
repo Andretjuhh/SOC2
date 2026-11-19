@@ -1,0 +1,39 @@
+.button {
+  padding: 5px 10px;
+  border: 1px solid #5c4030;
+  border-radius: 6px;
+  color: #f2c99d;
+  background: #30241e;
+  cursor: pointer;
+  font: inherit;
+}
+
+.button:hover {
+  border-color: #d88a47;
+  background: #493020;
+}
+
+.claimed {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #f0b879;
+}
+
+.avatar {
+  display: inline-grid;
+  width: 21px;
+  height: 21px;
+  place-items: center;
+  border: 1px solid #d88a47;
+  border-radius: 50%;
+  color: #ffe0bd;
+  background: #493020;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.ticket {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+}

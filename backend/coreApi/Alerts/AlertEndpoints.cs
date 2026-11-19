@@ -13,7 +13,7 @@ public static class AlertEndpoints
 
     public static void MapAlertEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/api/alerts", GetAlerts)
+        app.MapGet("/api/filtered-alerts", GetAlerts)
             .WithName("GetAlerts")
             .WithTags("Alerts")
             .WithSummary("Get alerts filtered by priority, customer, status, and UTC date.")
