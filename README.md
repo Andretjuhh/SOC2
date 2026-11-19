@@ -128,6 +128,12 @@ Gebruik je een andere backendpoort, wijzig dan de proxy in `frontend/vite.config
    Pas daarna maakt Identity de sessiecookie aan en gaat React naar `/overview`.
 8. De dashboardroutes controleren de sessie via `/api/auth/me`. Zonder geldige sessie gaat de gebruiker naar `/login`.
 
+### MFA-accountvereisten
+
+- Het account moet bestaan, actief en niet geblokkeerd zijn. Voor het koppelen van een authenticator zijn de juiste gebruikersnaam en het juiste wachtwoord nodig.
+- Een wachtwoord moet minimaal 15 tekens bevatten. Cijfers, hoofdletters en speciale tekens zijn niet verplicht.
+- De authenticator gebruikt TOTP met SHA-1: een code bestaat uit 6 cijfers en verloopt na 30 seconden.
+
 Koppel voor een lokaal testaccount eerst de authenticator-app via `/mfa-setup`.
 Dit scherm en `POST /api/gebruikers/mfa-setup` zijn alleen in Development beschikbaar.
 Scan de QR-code met Microsoft Authenticator en ga vervolgens naar `/login`.

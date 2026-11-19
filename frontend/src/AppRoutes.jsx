@@ -26,7 +26,7 @@ function AppRoutes({ query, onQueryChange }) {
         <Route element={<AlertsProvider query={query}><Outlet /></AlertsProvider>}>
           <Route element={<AppLayout query={query} onQueryChange={onQueryChange}><Outlet /></AppLayout>}>
             <Route path="/overview" element={<OverviewPage />} />
-            <Route path="/alerts" element={<AlertsPage />} />
+            <Route path="/alerts" element={<AlertsPage query={query} onQueryChange={onQueryChange} />} />
             <Route path="/activity" element={<ActivityPage />} />
             <Route path="/assets" element={<AssetsPage />} />
             <Route path="/tickets" element={<TicketPage />} />
