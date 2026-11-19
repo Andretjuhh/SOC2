@@ -123,14 +123,20 @@ Gebruik je een andere backendpoort, wijzig dan de proxy in `frontend/vite.config
    Daarnaast begrenst de API loginverzoeken tot tien per minuut per IP-adres (HTTP 429).
 5. Bij een geldig wachtwoord geeft de API HTTP 202 met `mfaVereist`, `challengeId` en `verlooptOp`.
    De challenge is vijf minuten geldig en wordt tijdelijk in het geheugen van dit API-proces bewaard.
-6. React toont dat extra verificatie nodig is. Er wordt op dit moment nog geen ingelogde sessie gemaakt.
+6. React opent `/mfa`. De gebruiker voert de actuele zescijferige code uit de authenticator-app in.
+7. `POST /api/auth/mfa/verify` controleert de code en verbruikt de challenge eenmalig.
+   Pas daarna maakt Identity de sessiecookie aan en gaat React naar `/overview`.
+8. De dashboardroutes controleren de sessie via `/api/auth/me`. Zonder geldige sessie gaat de gebruiker naar `/login`.
 
-**MFA-verificatie en het activeren van de sessie moeten nog op US-02 aangesloten worden.**
+Koppel voor een lokaal testaccount eerst de authenticator-app via `/mfa-setup`.
+Dit scherm en `POST /api/gebruikers/mfa-setup` zijn alleen in Development beschikbaar.
+Scan de QR-code met Microsoft Authenticator en ga vervolgens naar `/login`.
+Opnieuw koppelen vervangt de bestaande sleutel van het account.
+De eerdere development-login zonder wachtwoord en MFA is niet meer geregistreerd.
 Een API-herstart verwijdert de tijdelijke challenges.
 De bestaande routes `GET /api/auth/me` en `POST /api/auth/logout` vereisen een ingelogde sessie.
 `/me` geeft de rol, rechten en klanttoegang terug en meldt ontbrekende actieve klanttoegang.
-Het demo-dashboard is nog rechtstreeks bereikbaar; de React-routebeveiliging en volledige koppeling met
-RBAC/tenantafscherming uit US-03 en US-05 zijn nog niet afgerond.
+De volledige koppeling van dashboardfuncties met RBAC/tenantafscherming uit US-03 en US-05 is nog niet afgerond.
 
 ## Controleren
 

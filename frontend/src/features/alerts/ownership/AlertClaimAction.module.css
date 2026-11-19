@@ -32,3 +32,8 @@
   font-size: 9px;
   font-weight: 700;
 }
+
+.ticket {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+}

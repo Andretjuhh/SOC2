@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using CoreApi.Data;
 using CoreApi.Features.Auth;
-using CoreApi.Features.Auth.DevLogin; 
+using CoreApi.Features.Gebruikers.SetupMfa;
 using CoreApi.Features.Gebruikers.CreateGebruiker;
 using CoreApi.Features.Klant.CreateKlant;
 using CoreApi.Features.Alerts;
@@ -36,8 +36,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
     app.MapGroup("/api/gebruikers").WithTags("Gebruikers").MapCreateGebruikerEndpoint();
+    app.MapGroup("/api/gebruikers").WithTags("Gebruikers").MapSetupMfaEndpoint()
+        .RequireRateLimiting("login");
     app.MapGroup("/api/klanten").WithTags("Klanten").MapCreateKlantEndpoint();
-    app.MapGroup("/api/dev").WithTags("Development").MapDevLoginEndpoint();
 }
 
 app.UseRateLimiter();

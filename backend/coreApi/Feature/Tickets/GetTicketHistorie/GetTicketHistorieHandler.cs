@@ -4,7 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CoreApi.Features.Tickets.GetTicketHistorie;
 
-public sealed record TicketHistorieResponse(string Actie, string Omschrijving, Guid GebruikerID, DateTime Tijdstip);
+public sealed record TicketHistorieResponse(string Actie, string Omschrijving, Guid GebruikerID, DateTime Tijdstip,
+    string GebruikerNaam, string Gebruikersnaam);
 
 public static class GetTicketHistorieHandler
 {
@@ -25,7 +26,11 @@ public static class GetTicketHistorieHandler
         var historie = await db.TicketHistorie.AsNoTracking()
             .Where(x => x.TicketID == id)
             .OrderBy(x => x.Tijdstip)
-            .Select(x => new TicketHistorieResponse(x.Actie, x.Omschrijving, x.GebruikerID, x.Tijdstip))
+            .Select(x => new TicketHistorieResponse(x.Actie, x.Omschrijving, x.GebruikerID, x.Tijdstip,
+                db.Gebruikers.Where(g => g.Id == x.GebruikerID).Select(g => g.Naam).FirstOrDefault()
+                    ?? "Onbekende gebruiker",
+                db.Gebruikers.Where(g => g.Id == x.GebruikerID).Select(g => g.UserName).FirstOrDefault()
+                    ?? "onbekend"))
             .ToListAsync(ct);
 
         return Results.Ok(historie);

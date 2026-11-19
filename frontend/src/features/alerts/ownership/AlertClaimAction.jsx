@@ -3,9 +3,9 @@ import styles from './AlertClaimAction.module.css'
 function AlertClaimAction({ claimedByYou, claimedByOther, owner, claiming, onClaim }) {
   if (claimedByYou) {
     return (
-      <span className={styles.claimed} aria-label="Claimed by you">
+      <span className={styles.claimed} aria-label={ticketNummer ? `Claimed by you, ticket ${ticketNummer}` : 'Claimed by you'}>
         <span className={styles.avatar} aria-hidden="true">Y</span>
-        Claimed by you
+        {ticketNummer ? <span className={styles.ticket}>{ticketNummer}</span> : 'Claimed by you'}
       </span>
     )
   }
