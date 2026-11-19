@@ -3,6 +3,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { filterAlerts } from '../utils/filterAlerts'
 import { getAlertMetrics } from '../utils/getAlertMetrics'
 
+const ALERT_POLL_INTERVAL_MS = 10_000
+
 async function fetchAlerts(url, signal) {
   const requestConfig = { signal }
   const response = await fetch(url, requestConfig)
@@ -124,6 +126,68 @@ export default function useAlerts(query) {
       controller.abort()
     }
   }, [refreshAlerts])
+
+  useEffect(() => {
+    if (loading) {
+      return undefined
+    }
+
+    let timeoutId
+    let requestController
+    let requestInProgress = false
+    let disposed = false
+
+    const scheduleNextPoll = () => {
+      if (!disposed && document.visibilityState === 'visible') {
+        timeoutId = window.setTimeout(refreshOnTimer, ALERT_POLL_INTERVAL_MS)
+      }
+    }
+
+    const refreshOnTimer = async () => {
+      if (disposed || document.visibilityState !== 'visible' || requestInProgress) {
+        return
+      }
+
+      requestInProgress = true
+      requestController = new AbortController()
+      try {
+        await refreshAlerts(requestController.signal)
+      } finally {
+        requestInProgress = false
+        requestController = undefined
+        scheduleNextPoll()
+      }
+    }
+
+    const refreshImmediately = () => {
+      window.clearTimeout(timeoutId)
+      timeoutId = undefined
+      if (!requestInProgress) {
+        refreshOnTimer()
+      }
+    }
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        refreshImmediately()
+      } else {
+        window.clearTimeout(timeoutId)
+        timeoutId = undefined
+      }
+    }
+
+    scheduleNextPoll()
+    window.addEventListener('online', refreshImmediately)
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    return () => {
+      disposed = true
+      window.clearTimeout(timeoutId)
+      requestController?.abort()
+      window.removeEventListener('online', refreshImmediately)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [loading, refreshAlerts])
 
   const filteredEvents = useMemo(
     () => filterAlerts(alerts, query, severityFilter),

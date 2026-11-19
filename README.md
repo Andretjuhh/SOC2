@@ -113,6 +113,8 @@ Open de URL die Vite toont, gevolgd door `/login`, meestal `http://localhost:517
 Het inlogformulier heeft geen eigen CSS. De bestaande globale stijlen blijven gelden.
 Vite stuurt `/api`-verzoeken door naar `http://localhost:5294`.
 Gebruik je een andere backendpoort, wijzig dan de proxy in `frontend/vite.config.js` en herstart Vite.
+De alertlijst en de daarvan afgeleide tellingen worden elke 10 seconden vernieuwd.
+Na een mislukte aanvraag wordt opnieuw geprobeerd; bij netwerkherstel of terugkeer naar het tabblad volgt direct een nieuwe poging.
 
 ## Huidige inlogflow (US-01)
 

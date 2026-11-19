@@ -13,7 +13,7 @@ function AlertClaimAction({ claimedByYou, claimedByOther, owner, claiming, onCla
   if (claimedByOther) {
     return (
       <span className={styles.claimed} aria-label={`Claimed by ${owner}`}>
-        Claimed by {owner}
+        Already claimed {owner}
       </span>
     )
   }
