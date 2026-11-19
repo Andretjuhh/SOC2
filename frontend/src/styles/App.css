@@ -379,12 +379,7 @@
 
 .page-heading p,
 .panel-heading p,
-.alerts-heading > div > p {
-  margin: 7px 0 0;
-  color: #898da0;
-  font-size: 11px;
-}
-
+.alerts-heading p,
 .date-range {
   display: flex;
   height: 34px;
@@ -761,6 +756,82 @@
   text-align: right;
 }
 
+.alert-generator {
+  display: flex;
+  width: 220px;
+  min-height: 154px;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 18px;
+  margin: 18px 0 0 auto;
+  padding: 16px;
+  border: 1px dashed #d88a47;
+  border-radius: 10px;
+  background: linear-gradient(145deg, #261f1b, #171820 72%);
+  box-shadow: inset 0 0 24px rgb(216 138 71 / 7%);
+}
+
+.alert-generator h2 {
+  margin: 0;
+  color: #f0b879;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.alert-generator-controls {
+  display: grid;
+  grid-template-columns: 36px 1fr 36px;
+  align-items: center;
+  gap: 9px;
+}
+
+.alert-generator-controls button {
+  min-height: 36px;
+  border: 1px solid #5c4030;
+  border-radius: 7px;
+  color: #f2c99d;
+  background: #30241e;
+  font: inherit;
+  font-size: 14px;
+}
+
+.alert-generator-controls button {
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.alert-generator-controls .alert-generator-toggle {
+  grid-column: 1 / -1;
+  color: #ffd9b2;
+  background: #493020;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.alert-generator-controls .alert-generator-reset {
+  grid-column: 1 / -1;
+  min-height: 28px;
+  border-color: #68404a;
+  color: #f2a4ad;
+  background: #352127;
+  font-size: 10px;
+}
+
+.alert-generator-controls button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.alert-generator-interval {
+  color: #f0e2d4;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+}
+
 .alerts-panel {
   overflow: hidden;
 }
@@ -846,6 +917,7 @@
 
 .alerts-table {
   width: 100%;
+  min-width: 860px;
   border-collapse: collapse;
   text-align: left;
   white-space: nowrap;
@@ -867,6 +939,27 @@
 .alerts-table th:first-child,
 .alerts-table td:first-child {
   padding-left: 17px;
+}
+
+.alerts-table .event-name-cell {
+  min-width: 230px;
+}
+
+.event-name-cell strong {
+  display: inline-block;
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+
+.owner-cell {
+  min-width: 125px;
+  color: #e0d4c8 !important;
+}
+
+.claim-cell {
+  min-width: 145px;
 }
 
 .alerts-table th:last-child,
