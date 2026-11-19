@@ -156,5 +156,12 @@ npm.cmd --prefix frontend run lint
 
 ```
 
-De backendtests gebruiken een aparte EF InMemory-testdatabase en hebben geen lokale SQL Server nodig.
+De meeste backendtests gebruiken EF InMemory en hebben geen SQL Server nodig. `TicketTests` gebruiken
+LocalDB (`SOC2Db_Test`) om SQL Server-rowversion en de historie-trigger te testen; voor die tests moet
+SQL Server LocalDB geinstalleerd zijn. Zonder LocalDB kun je de overige tests uitvoeren met:
+
+```powershell
+dotnet test backend\coreApi.Tests\coreApi.Tests.csproj --filter "FullyQualifiedName!~TicketTests"
+```
+
 Test handmatig ook een geldig account, een fout wachtwoord, een inactief account en een onbereikbare backend.

@@ -27,10 +27,13 @@ public static class UpdateTicketHandler
         if (ticket.Status == TicketStatus.Afgerond)
             return Results.Problem(statusCode: 409, title: "Een afgerond ticket kan niet meer worden bewerkt.");
 
-        // 4. Invoer controleren
+        // 4. De versie is verplicht voordat we op een conflict kunnen controleren
+        if (request.Versie is null || request.Versie.Length == 0)
+            return Results.ValidationProblem(new Dictionary<string, string[]>
+                { ["versie"] = ["Stuur de versie van het ticket mee."] });
 
-                // UU6b: heeft iemand anders het ticket intussen gewijzigd?
-        if (!ticket.Versie.SequenceEqual(request.Versie!))
+        // UU6b: heeft iemand anders het ticket intussen gewijzigd?
+        if (!ticket.Versie.SequenceEqual(request.Versie))
             return TicketToegang.ConflictMelding();
 
         var fout = request.Valideer();
