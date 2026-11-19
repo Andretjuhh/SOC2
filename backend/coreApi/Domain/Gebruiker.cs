@@ -19,4 +19,6 @@ public class Gebruiker : IdentityUser<Guid>
 
     public Guid RolID { get; set; }
     public Rol Rol { get; set; } = null!;
+
+    public ICollection<Alert> AssignedAlerts { get; set; } = new List<Alert>();
 }

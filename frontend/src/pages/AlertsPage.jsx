@@ -13,6 +13,8 @@ function AlertsPage() {
     severityFilter,
     setSeverityFilter,
     claimAlert,
+    claimNotice,
+    claimingAlertId,
   } = useAlertData()
   const [alertVoorTicket, setAlertVoorTicket] = useState(null)
 
@@ -31,6 +33,7 @@ function AlertsPage() {
       </select>
 
       <section className="panel alerts-panel" id="alerts">
+        {claimNotice && <p role="status" aria-live="polite">{claimNotice}</p>}
         <div className="alert-filters" aria-label="Filter alerts by severity">
           {['All events', 'Critical', 'High', 'Medium', 'Low'].map((filter) => (
             <button
@@ -59,8 +62,10 @@ function AlertsPage() {
                   <td className="claim-cell">
                     <AlertClaimAction
                       claimedByYou={event.claimedByYou}
-                      ticketNummer={event.ticketNummer}
-                      onClaim={() => setAlertVoorTicket(event)}
+                      claimedByOther={event.isClaimed && !event.claimedByYou}
+                      owner={event.owner}
+                      claiming={claimingAlertId === event.id}
+                      onClaim={() => claimAlert(event.id)}
                     />
                   </td>
                 </tr>

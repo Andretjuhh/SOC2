@@ -16,4 +16,7 @@ public class Alert
 
     public Guid KlantID { get; set; }
     public Klant Klant { get; set; } = null!;
+
+    public Guid? AssignedUserId { get; set; }
+    public Gebruiker? AssignedUser { get; set; }
 }
