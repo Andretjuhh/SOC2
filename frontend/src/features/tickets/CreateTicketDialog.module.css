@@ -1,0 +1,172 @@
+.dialog {
+  width: min(560px, calc(100vw - 32px));
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  background: var(--panel);
+  box-shadow: 0 24px 60px rgb(0 0 0 / 55%);
+}
+
+.dialog::backdrop {
+  background: rgb(5 6 10 / 70%);
+}
+
+.form {
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.header p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.header code {
+  color: #c4c6d2;
+}
+
+.close {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--muted);
+  background: transparent;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.close:hover {
+  color: var(--text);
+}
+
+.fields {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.field span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  background: var(--panel-raised);
+  font: inherit;
+  font-size: 13px;
+}
+
+.field textarea {
+  resize: vertical;
+  line-height: 1.45;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: #d88a47;
+  outline: none;
+}
+
+.error {
+  margin: 0;
+  padding: 9px 11px;
+  border: 1px solid #6b2f36;
+  border-radius: 6px;
+  color: #f3a7ae;
+  background: #2a1519;
+  font-size: 12px;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hint {
+  margin-right: auto;
+  color: var(--subtle);
+  font-size: 11px;
+}
+
+.primary,
+.secondary {
+  padding: 7px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+}
+
+.primary {
+  border: 1px solid #d88a47;
+  color: #ffe0bd;
+  background: #493020;
+}
+
+.primary:hover:not(:disabled) {
+  background: #5c3c26;
+}
+
+.secondary {
+  border: 1px solid var(--border);
+  color: #c4c6d2;
+  background: transparent;
+}
+
+.primary:disabled,
+.secondary:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+@media (max-width: 520px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+}

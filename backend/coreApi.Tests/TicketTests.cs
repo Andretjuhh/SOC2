@@ -3,6 +3,7 @@ using CoreApi.Domain;
 using CoreApi.Features.Tickets;
 using CoreApi.Features.Tickets.CreateTicket;
 using CoreApi.Features.Tickets.GetTicket;
+using CoreApi.Features.Tickets.ListTickets;
 using CoreApi.Features.Tickets.ResolveTicket;
 using CoreApi.Features.Tickets.UpdateTicket;
 using Microsoft.AspNetCore.Http;
@@ -273,5 +274,38 @@ public sealed class TicketTests(TicketTestDatabase database) : IClassFixture<Tic
             var opgeslagen = await db.Tickets.SingleAsync(x => x.TicketID == ticket.TicketID);
             Assert.Equal(TicketPrioriteit.Hoog, opgeslagen.Prioriteit);
         }
+    }
+
+    // ---------- Ticketoverzicht ----------
+
+    [Fact]
+    public async Task Overzicht_ToontAlleenTicketsVanEigenKlant_MetNaamVanAanmaker()
+    {
+        var analist = await MaakAnalist();
+        var analistAndereKlant = await MaakAnalist();
+        var eigenTicket = await MaakTicket(analist);
+        var ticketAndereKlant = await MaakTicket(analistAndereKlant);
+
+        await using var db = database.NieuweContext();
+        var result = await ListTicketsHandler.Handle(analist, db, CancellationToken.None);
+
+        Assert.Equal(200, StatusCode(result));
+        var overzicht = (List<TicketOverzichtResponse>)((IValueHttpResult)result).Value!;
+        var regel = Assert.Single(overzicht, x => x.TicketID == eigenTicket.TicketID);
+        Assert.DoesNotContain(overzicht, x => x.TicketID == ticketAndereKlant.TicketID);
+        Assert.StartsWith("test-", regel.AangemaaktDoorNaam);
+        Assert.StartsWith("test-", regel.AangemaaktDoorGebruikersnaam);
+        Assert.Equal(eigenTicket.TicketNummer, regel.TicketNummer);
+    }
+
+    [Fact]
+    public async Task Overzicht_ZonderLeesrecht_Geeft403()
+    {
+        var gebruikerZonderRechten = await MaakGebruiker();
+        await using var db = database.NieuweContext();
+
+        var result = await ListTicketsHandler.Handle(gebruikerZonderRechten, db, CancellationToken.None);
+
+        Assert.Equal(403, StatusCode(result));
     }
 }

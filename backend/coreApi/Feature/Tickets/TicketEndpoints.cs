@@ -1,6 +1,7 @@
 using CoreApi.Features.Tickets.CreateTicket;
 using CoreApi.Features.Tickets.GetTicket;
 using CoreApi.Features.Tickets.GetTicketHistorie;
+using CoreApi.Features.Tickets.ListTickets;
 using CoreApi.Features.Tickets.ResolveTicket;
 using CoreApi.Features.Tickets.UpdateTicket;
 
@@ -12,6 +13,9 @@ public static class TicketEndpoints
     {
         // Alle ticket-endpoints vereisen een ingelogde gebruiker
         var group = app.MapGroup("/api/tickets").WithTags("Tickets").RequireAuthorization();
+
+        group.MapGet("", ListTicketsHandler.Handle).WithName("ListTickets")
+            .Produces<List<TicketOverzichtResponse>>().Produces(401).Produces(403);
 
         group.MapPost("", CreateTicketHandler.Handle).WithName("CreateTicket")
             .Produces<TicketResponse>(201).Produces(401).Produces(403).ProducesValidationProblem();

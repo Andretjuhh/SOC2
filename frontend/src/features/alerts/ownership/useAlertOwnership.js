@@ -2,7 +2,8 @@ import { useCallback } from 'react'
 
 export default function useAlertOwnership(setAlerts) {
 
-  const claimAlert = useCallback((alertId) => {
+  // Markeert een alert als geclaimd en onthoudt het ticket dat ervoor is aangemaakt.
+  const claimAlert = useCallback((alertId, ticket = null) => {
 
     setAlerts((currentAlerts) => {
 
@@ -12,7 +13,12 @@ export default function useAlertOwnership(setAlerts) {
         const isNotAlreadyClaimed = !alert.claimedByYou
 
         if (isMatchingAlert && isNotAlreadyClaimed) {
-          return {  ...alert, claimedByYou: true, }
+          return {
+            ...alert,
+            claimedByYou: true,
+            ticketId: ticket?.ticketID ?? null,
+            ticketNummer: ticket?.ticketNummer ?? null,
+          }
         }
 
         return alert

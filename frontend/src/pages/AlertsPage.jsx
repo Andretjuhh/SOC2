@@ -1,5 +1,8 @@
+import { useState } from 'react'
+
 import useAlertData from '../features/alerts/state/useAlertData'
 import AlertClaimAction from '../features/alerts/ownership/AlertClaimAction'
+import CreateTicketDialog from '../features/tickets/CreateTicketDialog'
 
 function AlertsPage() {
   const {
@@ -11,6 +14,12 @@ function AlertsPage() {
     setSeverityFilter,
     claimAlert,
   } = useAlertData()
+  const [alertVoorTicket, setAlertVoorTicket] = useState(null)
+
+  function handleTicketAangemaakt(ticket) {
+    claimAlert(alertVoorTicket.id, ticket)
+    setAlertVoorTicket(null)
+  }
 
   return (
     <section id="alert">
@@ -50,7 +59,8 @@ function AlertsPage() {
                   <td className="claim-cell">
                     <AlertClaimAction
                       claimedByYou={event.claimedByYou}
-                      onClaim={() => claimAlert(event.id)}
+                      ticketNummer={event.ticketNummer}
+                      onClaim={() => setAlertVoorTicket(event)}
                     />
                   </td>
                 </tr>
@@ -69,6 +79,15 @@ function AlertsPage() {
         </div>
         <div className="table-footer"><span>Showing {filteredEvents.length} of {alerts.length} alerts</span><button type="button" className="pagination-button" disabled>‹</button><button type="button" className="pagination-button" disabled>›</button></div>
       </section>
+
+      {alertVoorTicket && (
+        <CreateTicketDialog
+          key={alertVoorTicket.id}
+          alert={alertVoorTicket}
+          onClose={() => setAlertVoorTicket(null)}
+          onCreated={handleTicketAangemaakt}
+        />
+      )}
 
       <footer className="dashboard-footer"><span>Sentinel SOC <span className="footer-divider">·</span> Demo dashboard with sample data</span><span>Last updated just now <i className="status-dot" /></span></footer>
     </section>
