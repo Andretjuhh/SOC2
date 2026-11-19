@@ -150,18 +150,23 @@ Voer vanuit de repositorymap uit:
 
 ```powershell
 dotnet run --project backend\coreApi\coreApi.csproj
-dotnet test backend/coreApi.Tests/coreApi.Tests.csproj
+
+dotnet test backend\coreApi.Tests\coreApi.Tests.csproj
+
 npm.cmd --prefix frontend run build
 npm.cmd --prefix frontend run lint
 
 ```
 
-De meeste backendtests gebruiken EF InMemory en hebben geen SQL Server nodig. `TicketTests` gebruiken
-LocalDB (`SOC2Db_Test`) om SQL Server-rowversion en de historie-trigger te testen; voor die tests moet
-SQL Server LocalDB geinstalleerd zijn. Zonder LocalDB kun je de overige tests uitvoeren met:
+De backend is beschikbaar op `http://localhost:5294`. Open Swagger handmatig via
+`http://localhost:5294/swagger`; de browser wordt niet automatisch geopend.
+
+De meeste backendtests gebruiken EF InMemory en hebben geen SQL Server nodig. `TicketTests` en
+`AlertTests` gebruiken LocalDB om SQL Server-rowversion, de historie-trigger en gelijktijdige claims te
+testen. Voor die tests moet SQL Server LocalDB geinstalleerd zijn. Zonder LocalDB kun je de overige tests uitvoeren met:
 
 ```powershell
-dotnet test backend\coreApi.Tests\coreApi.Tests.csproj --filter "FullyQualifiedName!~TicketTests"
+dotnet test backend\coreApi.Tests\coreApi.Tests.csproj --filter "FullyQualifiedName!~TicketTests&FullyQualifiedName!~AlertTests"
 ```
 
 Test handmatig ook een geldig account, een fout wachtwoord, een inactief account en een onbereikbare backend.

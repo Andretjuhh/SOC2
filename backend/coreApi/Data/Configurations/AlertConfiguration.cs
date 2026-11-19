@@ -16,5 +16,8 @@ public sealed class AlertConfiguration : IEntityTypeConfiguration<Alert>
 
         builder.HasOne(alert => alert.Klant).WithMany(klant => klant.Alerts)
             .HasForeignKey(alert => alert.KlantID).OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(alert => alert.AssignedUser).WithMany(user => user.AssignedAlerts)
+            .HasForeignKey(alert => alert.AssignedUserId).OnDelete(DeleteBehavior.Restrict);
     }
 }

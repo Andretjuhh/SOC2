@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import Icon from '../layouts/Icon.jsx'
+import '../styles/Mfa.css'
 
 function LoginPage() {
   const navigate = useNavigate()
@@ -55,18 +57,20 @@ function LoginPage() {
   }
 
   return (
-    <main>
-      <h1>Inloggen</h1>
+    <main className="mfa-page">
+      <section className="mfa-card" aria-labelledby="login-titel">
+        <span className="mfa-brand">SOC2</span>
+        <span className="mfa-icon"><Icon name="shield" size={22} /></span>
+        <h1 id="login-titel">Inloggen</h1>
+        <p className="mfa-uitleg">Log in met je account om verder te gaan.</p>
 
-      {state?.melding && <p role="status">{state.melding}</p>}
+        {state?.melding && <p className="mfa-uitleg" role="status">{state.melding}</p>}
 
-      <form onSubmit={handleLogin} aria-busy={bezig}>
-        <fieldset disabled={bezig}>
-          <legend>Accountgegevens</legend>
-          <p>
-            <label htmlFor="gebruikersnaam">Gebruikersnaam</label>
-            <br />
+        <form onSubmit={handleLogin} aria-busy={bezig}>
+          <fieldset className="mfa-accountvelden" aria-label="Accountgegevens" disabled={bezig}>
+            <label className="mfa-label" htmlFor="gebruikersnaam">Gebruikersnaam</label>
             <input
+              className="mfa-input"
               id="gebruikersnaam"
               name="gebruikersnaam"
               autoComplete="username"
@@ -74,11 +78,9 @@ function LoginPage() {
               onChange={(event) => setGebruikersnaam(event.target.value)}
               required
             />
-          </p>
-          <p>
-            <label htmlFor="wachtwoord">Wachtwoord</label>
-            <br />
+            <label className="mfa-label" htmlFor="wachtwoord">Wachtwoord</label>
             <input
+              className="mfa-input"
               id="wachtwoord"
               name="wachtwoord"
               type="password"
@@ -87,12 +89,11 @@ function LoginPage() {
               onChange={(event) => setWachtwoord(event.target.value)}
               required
             />
-          </p>
-          <button type="submit">{bezig ? 'Bezig met inloggen...' : 'Inloggen'}</button>
-        </fieldset>
-      </form>
-
-      {fout && <p role="alert">{fout}</p>}
+            <p className="mfa-fout" role="alert">{fout}</p>
+            <button className="mfa-knop" type="submit">{bezig ? 'Bezig met inloggen...' : 'Inloggen'}</button>
+          </fieldset>
+        </form>
+      </section>
     </main>
   )
 }

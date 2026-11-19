@@ -25,7 +25,7 @@ function getDateBounds(days) {
 
 function AlertsPage({ query, onQueryChange }) {
   const [alerts, setAlerts] = useState([])
-  const [claimedAlerts, setClaimedAlerts] = useState({})
+  const [ticketsByAlert, setTicketsByAlert] = useState({})
   const [alertVoorTicket, setAlertVoorTicket] = useState(null)
   const [totalCount, setTotalCount] = useState(0)
   const [priorityFilter, setPriorityFilter] = useState('All events')
@@ -36,7 +36,7 @@ function AlertsPage({ query, onQueryChange }) {
   const [error, setError] = useState('')
 
   function handleTicketAangemaakt(ticket) {
-    setClaimedAlerts((current) => ({
+    setTicketsByAlert((current) => ({
       ...current,
       [alertVoorTicket.id]: ticket.ticketNummer ?? null,
     }))
@@ -273,7 +273,7 @@ function AlertsPage({ query, onQueryChange }) {
         </div>
         <div className="table-scroll">
           <table className="alerts-table">
-            <thead><tr><th>EVENT</th><th>SOURCE</th><th>PRIORITY</th><th>CUSTOMER</th><th>STATUS</th><th>TIME</th><th>CLAIM</th></tr></thead>
+            <thead><tr><th>EVENT</th><th>SOURCE</th><th>PRIORITY</th><th>CUSTOMER</th><th>STATUS</th><th>TIME</th><th>TICKET</th></tr></thead>
             <tbody>
               {isLoading ? (
                 <tr><td className="empty-state" colSpan="7" role="status">Loading alerts…</td></tr>
@@ -293,8 +293,8 @@ function AlertsPage({ query, onQueryChange }) {
                     <td className="time-cell">{new Date(alert.createdAt).toLocaleString()}</td>
                     <td className="claim-cell">
                       <AlertClaimAction
-                        claimedByYou={Object.prototype.hasOwnProperty.call(claimedAlerts, alert.id)}
-                        ticketNummer={claimedAlerts[alert.id]}
+                        ticketNummer={ticketsByAlert[alert.id]}
+                        actionLabel="Create ticket"
                         onClaim={() => setAlertVoorTicket({
                           ...alert,
                           type: alert.title,
