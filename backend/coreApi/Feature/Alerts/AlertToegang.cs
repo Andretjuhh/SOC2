@@ -17,10 +17,20 @@ public static class AlertToegang
 
         var gebruiker = await db.Gebruikers
             .Include(x => x.Klant)
+            .Include(gebruiker => gebruiker.Rol).ThenInclude(rol => rol.Rechten)
             .SingleOrDefaultAsync(x => x.Id == gebruikerId, cancellationToken);
 
-        return gebruiker is { IsActief: true, Klant: { isActief: true }, KlantID: not null }
+        return gebruiker is { IsActief: true } && RechtenMatrix.HeeftKlanttoegang(gebruiker)
             ? gebruiker
             : null;
     }
+
+    public static bool MagLezen(Gebruiker gebruiker) =>
+        RechtenMatrix.HeeftRecht(gebruiker, RechtenMatrix.AlertsLezen);
+
+    public static bool MagSchrijven(Gebruiker gebruiker) =>
+        RechtenMatrix.HeeftRecht(gebruiker, RechtenMatrix.AlertsSchrijven);
+
+    public static bool MagClaimen(Gebruiker gebruiker) =>
+        RechtenMatrix.HeeftRecht(gebruiker, RechtenMatrix.AlertsClaimen);
 }

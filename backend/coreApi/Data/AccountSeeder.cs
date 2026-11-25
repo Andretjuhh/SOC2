@@ -6,11 +6,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CoreApi.Data;
 
-public class AccountSeeder(
-    SOC2DBContext db,
-    UserManager<Gebruiker> users)
+public class AccountSeeder(SOC2DBContext db, UserManager<Gebruiker> users)
 {
-    private const string TestWachtwoord = "SOC2 testaccount 2026!";
+    //ieder test accounts wachtwoord is SAME SAME, alleen voor de dev omgevinmg.
+    private const string TestWachtwoord = "SOC2-testWW67!-15tekens";
+    //ieder test accounts klantID is SAME SAME, alleen voor de dev omgevinmg.
     private static readonly Guid TestKlantId = Guid.Parse("9f84aed1-c1d4-448a-bf9e-90231e10ad27");
 
     internal static bool IsTestAccount(Gebruiker gebruiker)
@@ -24,6 +24,7 @@ public class AccountSeeder(
         await using var transaction = await db.Database.BeginTransactionAsync(IsolationLevel.Serializable);
 
         await MaakTestklant();
+        await ZoekOfMaakRol(RechtenMatrix.GeenToegang, []);
         await MaakKlantAccount();
         await MaakAnalistAccount();
         await MaakBeheerderAccount();
@@ -33,6 +34,7 @@ public class AccountSeeder(
 
     private async Task MaakTestklant()
     {
+        //Dit is het bedrijgfaccount dat dus een bedrijf moet gerbuiken
         if (await db.Klanten.AnyAsync(klant => klant.KlantID == TestKlantId))
             return;
 
@@ -49,9 +51,10 @@ public class AccountSeeder(
 
     private async Task MaakKlantAccount()
     {
-        // Hoort eigen klantgegevens en tickets te lezen, geen tickets te wijzigen.
-        // Alerts hebben momenteel nog geen aparte rechtencontrole.
-        var rol = await ZoekOfMaakRol("Klant", [TicketToegang.RechtLezen]);
+        //Dit is dan een randomn ass gebruiker van dus zo'n bedrijf..
+        // hoort enkel en allen eigen klantgegevens en tickets te lezen, geen tickets te wijzigen.
+        // Mag alerts bekijken, maar geen alerts claimen of aanmaken.
+        var rol = await ZoekOfMaakRol(RechtenMatrix.Klant, RechtenMatrix.VoorRol(RechtenMatrix.Klant));
         var gebruiker = new Gebruiker
         {
             Naam = "Testklant",
@@ -66,9 +69,9 @@ public class AccountSeeder(
 
     private async Task MaakAnalistAccount()
     {
-        // Hoort alerts en tickets voor toegewezen klanten te behandelen,
-        // geen gebruikers of rollen te beheren.
-        var rol = await ZoekOfMaakRol("SOC-analist", [TicketToegang.RechtLezen, TicketToegang.RechtSchrijven]);
+        // hoort alerts en tickets voor toegewezen klanten te behandelen,
+        // zou geen gebruikers of rollen mogen beheren.
+        var rol = await ZoekOfMaakRol(RechtenMatrix.Analist, RechtenMatrix.VoorRol(RechtenMatrix.Analist));
         var gebruiker = new Gebruiker
         {
             Naam = "Testanalist",
@@ -83,9 +86,9 @@ public class AccountSeeder(
 
     private async Task MaakBeheerderAccount()
     {
-        // Hoort uiteindelijk alle klanten, gebruikers en rollen te beheren.
-        // Nu gelden de ticketrechten voor de testklant; globale toegang volgt nog.
-        var rol = await ZoekOfMaakRol("Beheerder", [TicketToegang.RechtLezen, TicketToegang.RechtSchrijven]);
+        // Hoort uiteindelijk denk ik dan alle klanten, gebruikers en rollen te beheren.
+        // Heeft klantoverschrijdende toegang en mag rollen aan gebruikers toekennen.
+        var rol = await ZoekOfMaakRol(RechtenMatrix.Beheerder, RechtenMatrix.VoorRol(RechtenMatrix.Beheerder));
         var gebruiker = new Gebruiker
         {
             Naam = "Testbeheerder",
@@ -109,12 +112,22 @@ public class AccountSeeder(
             db.Rollen.Add(rol);
         }
 
+        foreach (var bestaand in rol.Rechten.ToList())
+        {
+            if (!rechten.Contains(bestaand.Naam, StringComparer.OrdinalIgnoreCase))
+                rol.Rechten.Remove(bestaand);
+        }
         foreach (var rechtNaam in rechten)
         {
             if (rol.Rechten.Any(recht => recht.Naam.Equals(rechtNaam, StringComparison.OrdinalIgnoreCase)))
                 continue;
             var recht = await db.Rechten.SingleOrDefaultAsync(recht => recht.Naam == rechtNaam);
-            rol.Rechten.Add(recht ?? new Recht { Naam = rechtNaam });
+            if (recht is null)
+            {
+                recht = new Recht { Naam = rechtNaam };
+                db.Rechten.Add(recht);
+            }
+            rol.Rechten.Add(recht);
         }
         await db.SaveChangesAsync();
         return rol;
@@ -127,6 +140,14 @@ public class AccountSeeder(
         {
             if (bestaand.RolID != gebruiker.RolID || bestaand.KlantID != gebruiker.KlantID)
                 throw new InvalidOperationException($"Account '{gebruiker.UserName}' bestaat met een andere rol of klant.");
+
+            if (!await users.CheckPasswordAsync(bestaand, TestWachtwoord))
+            {
+                var token = await users.GeneratePasswordResetTokenAsync(bestaand);
+                var reset = await users.ResetPasswordAsync(bestaand, token, TestWachtwoord);
+                if (!reset.Succeeded)
+                    throw new InvalidOperationException(string.Join(" ", reset.Errors.Select(fout => fout.Description)));
+            }
             return;
         }
 

@@ -53,10 +53,7 @@ public static class VerifyMfaHandler
         var user = await db.Gebruikers.AsNoTracking().Include(x => x.Klant)
             .Include(x => x.Rol).ThenInclude(x => x.Rechten)
             .SingleAsync(x => x.Id == gebruiker.Id, ct);
-        var toegang = user.Klant is { isActief: true };
-        return Results.Ok(new GetMeResponse(user.Id, user.Naam, user.Rol.Naam,
-            user.Rol.Rechten.Select(x => x.Naam).Order().ToArray(), user.KlantID, toegang,
-            toegang ? null : "Er is geen actieve klanttoegang gekoppeld."));
+        return Results.Ok(GetMeResponse.Van(user));
     }
 
     private static IResult Verlopen() => Results.Problem(statusCode: 401, title: SessieVerlopen,

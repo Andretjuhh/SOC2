@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting.Internal;
 using System.Security.Claims;
 using Xunit;
 
@@ -23,6 +25,7 @@ public sealed class LoginTests : IDisposable
     private readonly SignInManager<Gebruiker> signIn;
     private readonly MfaChallengeStore challenges;
     private readonly SOC2DBContext db;
+    private readonly HostingEnvironment environment = new() { EnvironmentName = Environments.Development };
 
     public LoginTests()
     {
@@ -56,10 +59,10 @@ public sealed class LoginTests : IDisposable
     public async Task Login_GeldigAccount_GeeftAlleenMfaChallengeEnGeenSessie()
     {
         var user = await AddUser();
-        var result = await LoginHandler.Handle(new(" ANALIST ", Password), users, signIn, challenges);
+        var result = await LoginHandler.Handle(new(" ANALIST ", Password), users, signIn, challenges, environment);
         var accepted = Assert.IsType<Accepted<LoginResponse>>(result);
         Assert.True(accepted.Value!.MfaVereist);
-        Assert.Equal(user.Id, challenges.Find(accepted.Value.ChallengeId));
+        Assert.Equal(user.Id, challenges.Find(accepted.Value.ChallengeId!));
         Assert.Equal(0, http.Response.Headers.SetCookie.Count);
         Assert.False(http.User.Identity?.IsAuthenticated ?? false);
     }
@@ -71,7 +74,7 @@ public sealed class LoginTests : IDisposable
     public async Task Login_OngeldigeOfInactieveGebruiker_GeeftDezelfdeFout(string name, string password, bool active)
     {
         await AddUser(active);
-        var result = await LoginHandler.Handle(new(name, password), users, signIn, challenges);
+        var result = await LoginHandler.Handle(new(name, password), users, signIn, challenges, environment);
         var problem = Assert.IsType<ProblemHttpResult>(result);
         Assert.Equal(401, problem.StatusCode);
         Assert.Equal("Ongeldige inloggegevens.", problem.ProblemDetails.Title);
@@ -82,9 +85,9 @@ public sealed class LoginTests : IDisposable
     {
         var user = await AddUser();
         for (var attempt = 0; attempt < 5; attempt++)
-            await LoginHandler.Handle(new("analist", "verkeerd"), users, signIn, challenges);
+            await LoginHandler.Handle(new("analist", "verkeerd"), users, signIn, challenges, environment);
         Assert.True(await users.IsLockedOutAsync(user));
-        var result = await LoginHandler.Handle(new("analist", Password), users, signIn, challenges);
+        var result = await LoginHandler.Handle(new("analist", Password), users, signIn, challenges, environment);
         Assert.Equal(401, Assert.IsType<ProblemHttpResult>(result).StatusCode);
     }
 
@@ -93,7 +96,7 @@ public sealed class LoginTests : IDisposable
     {
         var user = await AddUser();
         await users.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow.AddMinutes(-1));
-        var result = await LoginHandler.Handle(new("analist", Password), users, signIn, challenges);
+        var result = await LoginHandler.Handle(new("analist", Password), users, signIn, challenges, environment);
         Assert.IsType<Accepted<LoginResponse>>(result);
     }
 
@@ -116,6 +119,51 @@ public sealed class LoginTests : IDisposable
         var principal = new ClaimsPrincipal(new ClaimsIdentity(
             [new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())], "test"));
         Assert.IsType<UnauthorizedHttpResult>(await GetMeHandler.Handle(principal, db, default));
+    }
+
+    [Theory]
+    [InlineData("Development", false)]
+    [InlineData("Production", true)]
+    [InlineData("Staging", true)]
+    public async Task Seedaccount_SlaatMfaAlleenInDevelopmentOver(string omgeving, bool mfaVereist)
+    {
+        var gebruiker = await AddUser();
+        gebruiker.Klant = new Klant
+        {
+            KlantID = Guid.Parse("9f84aed1-c1d4-448a-bf9e-90231e10ad27"),
+            isActief = true
+        };
+        gebruiker.KlantID = gebruiker.Klant.KlantID;
+        db.Klanten.Add(gebruiker.Klant);
+        gebruiker.TwoFactorEnabled = true;
+        await db.SaveChangesAsync();
+        environment.EnvironmentName = omgeving;
+
+        var result = await LoginHandler.Handle(new("analist", Password), users, signIn, challenges, environment);
+
+        if (mfaVereist)
+        {
+            Assert.True(Assert.IsType<Accepted<LoginResponse>>(result).Value!.MfaVereist);
+            Assert.Equal(0, http.Response.Headers.SetCookie.Count);
+        }
+        else
+        {
+            Assert.False(Assert.IsType<Ok<LoginResponse>>(result).Value!.MfaVereist);
+            Assert.True(http.Response.Headers.SetCookie.Count > 0);
+        }
+    }
+
+    [Fact]
+    public async Task Seedaccount_VerkeerdWachtwoord_MaaktGeenSessie()
+    {
+        var gebruiker = await AddUser();
+        gebruiker.KlantID = Guid.Parse("9f84aed1-c1d4-448a-bf9e-90231e10ad27");
+        await db.SaveChangesAsync();
+
+        var result = await LoginHandler.Handle(new("analist", "verkeerd"), users, signIn, challenges, environment);
+
+        Assert.Equal(401, Assert.IsType<ProblemHttpResult>(result).StatusCode);
+        Assert.Equal(0, http.Response.Headers.SetCookie.Count);
     }
 
     public void Dispose()

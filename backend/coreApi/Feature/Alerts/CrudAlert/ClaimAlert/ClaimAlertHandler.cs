@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using CoreApi.Data;
+using CoreApi.Domain;
 using CoreApi.Features.Alerts;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,13 +11,13 @@ public static class ClaimAlertHandler
     public static async Task<IResult> Handle(int id, ClaimsPrincipal principal, SOC2DBContext db, CancellationToken cancellationToken)
     {
         var user = await AlertToegang.HaalGebruikerOp(principal, db, cancellationToken);
-        if (user?.KlantID is not Guid customerId)
+        if (user is null || !AlertToegang.MagClaimen(user))
             return Results.Forbid();
 
         var affectedRows = await db.Alerts
             .Where(alert =>
                 alert.AlertID == id &&
-                alert.KlantID == customerId &&
+                (RechtenMatrix.IsBeheerder(user) || alert.KlantID == user.KlantID) &&
                 alert.AssignedUserId == null)
             .ExecuteUpdateAsync(
                 setters => setters.SetProperty(alert => alert.AssignedUserId, user.Id),
@@ -25,7 +26,7 @@ public static class ClaimAlertHandler
         var alert = await db.Alerts.AsNoTracking()
             .Include(item => item.AssignedUser)
             .SingleOrDefaultAsync(
-                item => item.AlertID == id && item.KlantID == customerId,
+                item => item.AlertID == id && (RechtenMatrix.IsBeheerder(user) || item.KlantID == user.KlantID),
                 cancellationToken);
 
         if (alert is null)

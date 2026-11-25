@@ -49,6 +49,8 @@ public sealed class AlertTests(TicketTestDatabase database)
             isActief = true,
         };
         var role = new Rol { Naam = $"alert-test-{suffix}" };
+        role.Rechten.Add(await db.Rechten.SingleOrDefaultAsync(recht => recht.Naam == RechtenMatrix.AlertsClaimen)
+            ?? new Recht { Naam = RechtenMatrix.AlertsClaimen });
         var first = CreateUser($"alert-first-{suffix}", "First analyst", customer, role);
         var second = CreateUser($"alert-second-{suffix}", "Second analyst", customer, role);
         var alert = new Alert

@@ -3,7 +3,7 @@ using CoreApi.Domain;
 namespace CoreApi.Features.Tickets.CreateTicket;
 
 public sealed record CreateTicketRequest(string Titel, string Beschrijving,
-    TicketPrioriteit Prioriteit, TicketCategorie Categorie)
+    TicketPrioriteit Prioriteit, TicketCategorie Categorie, Guid? KlantId = null)
 {
     public string? Valideer()
     {

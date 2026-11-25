@@ -40,7 +40,9 @@ function LoginPage() {
         return
       }
 
-      if (data?.mfaVereist && data.challengeId) {
+      if (data?.mfaVereist === false) {
+        navigate('/overview', { replace: true })
+      } else if (data?.mfaVereist && data.challengeId) {
         // challengeId alleen in router-state (niet in de URL of opslag).
         navigate('/mfa', {
           replace: true,

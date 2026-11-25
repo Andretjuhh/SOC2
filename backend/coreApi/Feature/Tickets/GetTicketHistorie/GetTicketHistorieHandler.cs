@@ -1,3 +1,4 @@
+using CoreApi.Domain;
 using System.Security.Claims;
 using CoreApi.Data;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +20,7 @@ public static class GetTicketHistorieHandler
             return Results.Problem(statusCode: 403, title: "Je hebt geen rechten om tickets te bekijken.");
 
         // Bestaat het ticket bij de eigen klant?
-        var bestaat = await db.Tickets.AnyAsync(x => x.TicketID == id && x.KlantID == gebruiker.KlantID, ct);
+        var bestaat = await db.Tickets.AnyAsync(x => x.TicketID == id && (RechtenMatrix.IsBeheerder(gebruiker) || x.KlantID == gebruiker.KlantID), ct);
         if (!bestaat)
             return Results.NotFound(new { melding = "Ticket niet gevonden." });
 

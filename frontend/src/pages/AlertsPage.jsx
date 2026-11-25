@@ -1,10 +1,13 @@
-import { useState } from 'react'
+import { useContext, useState } from 'react'
+import SessionContext from '../features/auth/SessionContext'
 
 import useAlertData from '../features/alerts/state/useAlertData'
 import AlertClaimAction from '../features/alerts/ownership/AlertClaimAction'
 import CreateTicketDialog from '../features/tickets/CreateTicketDialog'
 
 function AlertsPage() {
+  const gebruiker = useContext(SessionContext)
+  const magClaimen = gebruiker?.rechten.includes('alerts.claimen') && gebruiker?.rechten.includes('tickets.schrijven')
   const {
     filteredEvents,
     alerts,
@@ -60,13 +63,13 @@ function AlertsPage() {
                   <td className="time-cell">{event.time}</td>
                   <td className="time-cell">{event.closedTime ?? '—'}</td>
                   <td className="claim-cell">
-                    <AlertClaimAction
+                    {magClaimen ? <AlertClaimAction
                       claimedByYou={event.claimedByYou}
                       claimedByOther={event.isClaimed && !event.claimedByYou}
                       owner={event.owner}
                       claiming={claimingAlertId === event.id}
                       onClaim={() => claimAlert(event.id)}
-                    />
+                    /> : 'Alleen bekijken'}
                   </td>
                 </tr>
               ))}

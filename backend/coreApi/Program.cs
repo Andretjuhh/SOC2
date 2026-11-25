@@ -5,6 +5,7 @@ using CoreApi.Features.Auth;
 using CoreApi.Features.Auth.DevLogin;
 using CoreApi.Features.Gebruikers.SetupMfa;
 using CoreApi.Features.Gebruikers.CreateGebruiker;
+using CoreApi.Features.Gebruikers.Beheer;
 using CoreApi.Features.Klant.CreateKlant;
 using CoreApi.Features.Alerts;
 using CoreApi.Features.Tickets;
@@ -59,6 +60,7 @@ app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapAuthEndpoints();
+app.MapGebruikersBeheerEndpoints();
 app.MapTicketEndpoints();
 app.MapAlertEndpoints();
 
