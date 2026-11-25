@@ -72,6 +72,38 @@ Met het meegeleverde startprofiel draait de API in Development op `http://localh
 Swagger staat op `http://localhost:5294/swagger`; de healthcheck staat op `/health`.
 Herstart de backend na het wijzigen van je connection string.
 
+## Standaardaccounts seeden
+
+Bij het starten in Development controleert de backend automatisch de drie testaccounts.
+Ontbrekende accounts worden aangemaakt. Het vaste wachtwoord staat in `AccountSeeder.cs`.
+Voer vanuit `backend/coreApi/` uit nadat je je eigen databaseverbinding hebt ingesteld.
+
+```powershell
+dotnet ef database update -- --environment Development
+dotnet run
+```
+
+De seeder maakt de rollen `Klant`, `SOC-analist` en `Beheerder` en de accounts
+`klant`, `analist` en `beheerder`. Ze zijn gekoppeld aan dezelfde actieve ontwikkelklant.
+Alle drie krijgen bij het aanmaken het wachtwoord `SOC2 testaccount 2026!`.
+De klant krijgt `tickets.lezen`; de analist en beheerder krijgen ook `tickets.schrijven`.
+Voor een testsessie zonder wachtwoord en MFA gebruik je in Development via Swagger
+`POST /api/dev/login/klant`, `POST /api/dev/login/analist` of `POST /api/dev/login/beheerder`.
+Deze route werkt alleen voor de actieve, niet-geblokkeerde seedaccounts van de ontwikkelklant.
+Open daarna de frontend op `/overview`. Voor de normale login via `/login`
+koppel je het account eenmalig via `/mfa-setup` aan je eigen authenticator.
+
+Opnieuw uitvoeren maakt geen duplicaten en bewaart bestaande wachtwoorden, MFA en accountstatus.
+Een bestaande accountnaam met een andere rol of klant geeft een fout.
+Bij bestaande standaardrollen vult de seeder ontbrekende ticketrechten aan en behoudt hij extra rechten.
+Met `dotnet run -- --seed` kun je ook alleen seeden en daarna stoppen.
+De SQL Server-uitvoering gebruikt een serialiseerbare transactie. Bij een fout worden de wijzigingen teruggedraaid.
+De automatische seeder draait alleen in Development.
+
+De rolcomments beschrijven de bedoelde toegang. De huidige alertcode controleert alleen actieve
+klanttoegang. De beheerder heeft voorlopig de werkende ticketrechten voor de ontwikkelklant;
+globaal systeembeheer en verdere rollencontroles worden bij de betreffende functies uitgewerkt.
+
 ## Testaccount maken
 
 Open Swagger en stuur naar `POST /api/gebruikers`:
