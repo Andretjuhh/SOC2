@@ -49,13 +49,14 @@ export function leegTicket() {
 }
 
 // Maakt de beginwaarden van het ticketformulier op basis van een alert uit de alertlijst.
+// De eigenaar staat er bewust niet in: die is op dit moment nog niet bekend, want de alert
+// wordt pas na het opslaan geclaimd. Wie het ticket heeft geclaimd, staat bij het ticket zelf.
 export function maakTicketVanAlert(alert) {
   const beschrijving = [
     `Aangemaakt vanuit alert: ${alert.type}`,
     `Ernst: ${alert.severity}`,
     `Getroffen asset: ${alert.target}`,
     `Gedetecteerd: ${alert.time}`,
-    `Eigenaar alert: ${alert.owner}`,
     '',
     'Bevindingen:',
     '',
