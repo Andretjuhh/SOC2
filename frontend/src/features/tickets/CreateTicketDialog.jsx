@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 
 import { createTicket } from './api/createTicket'
-import { CATEGORIEEN, PRIORITEITEN, TITEL_MAX_LENGTE, maakTicketVanAlert } from './ticketOptions'
+import { CATEGORIEEN, PRIORITEITEN, TITEL_MAX_LENGTE, leegTicket, maakTicketVanAlert } from './ticketOptions'
 import styles from './CreateTicketDialog.module.css'
 
-function CreateTicketDialog({ alert, onClose, onCreated }) {
+// Met een alert: het formulier bij Claim (de hoofdroute). Zonder alert: een handmatig ticket.
+function CreateTicketDialog({ alert = null, onClose, onCreated }) {
+  const handmatig = alert === null
   const dialogRef = useRef(null)
-  const [formulier, setFormulier] = useState(() => maakTicketVanAlert(alert))
+  const [formulier, setFormulier] = useState(() => (handmatig ? leegTicket() : maakTicketVanAlert(alert)))
   const [bezig, setBezig] = useState(false)
   const [fout, setFout] = useState('')
 
@@ -29,8 +31,8 @@ function CreateTicketDialog({ alert, onClose, onCreated }) {
     event.preventDefault()
     if (bezig) return
 
-    if (!formulier.titel.trim() || !formulier.beschrijving.trim()) {
-      setFout('Vul een titel en beschrijving in.')
+    if (!formulier.titel.trim() || !formulier.beschrijving.trim() || !formulier.prioriteit || !formulier.categorie) {
+      setFout('Vul alle verplichte velden in: titel, beschrijving, prioriteit en categorie.')
       return
     }
 
@@ -57,8 +59,10 @@ function CreateTicketDialog({ alert, onClose, onCreated }) {
       <form className={styles.form} onSubmit={handleSubmit} aria-busy={bezig}>
         <header className={styles.header}>
           <div>
-            <h2 id="ticket-dialog-titel">Ticket aanmaken</h2>
-            <p>Vanuit alert <strong>{alert.type}</strong> op <code>{alert.target}</code></p>
+            <h2 id="ticket-dialog-titel">{handmatig ? 'Nieuw ticket' : 'Ticket aanmaken'}</h2>
+            {handmatig
+              ? <p>Voor een melding zonder alert, bijvoorbeeld van een klant. Een ticket vanuit een alert maak je via Claim op de Alerts-pagina.</p>
+              : <p>Vanuit alert <strong>{alert.type}</strong> op <code>{alert.target}</code></p>}
           </div>
           <button type="button" className={styles.close} onClick={sluit} aria-label="Sluiten" disabled={bezig}>×</button>
         </header>
@@ -78,13 +82,15 @@ function CreateTicketDialog({ alert, onClose, onCreated }) {
           <div className={styles.row}>
             <label className={styles.field}>
               <span>Prioriteit</span>
-              <select value={formulier.prioriteit} onChange={wijzig('prioriteit')}>
+              <select value={formulier.prioriteit} onChange={wijzig('prioriteit')} required>
+                {handmatig && <option value="" disabled>Kies…</option>}
                 {PRIORITEITEN.map((optie) => <option key={optie.value} value={optie.value}>{optie.label}</option>)}
               </select>
             </label>
             <label className={styles.field}>
               <span>Categorie</span>
-              <select value={formulier.categorie} onChange={wijzig('categorie')}>
+              <select value={formulier.categorie} onChange={wijzig('categorie')} required>
+                {handmatig && <option value="" disabled>Kies…</option>}
                 {CATEGORIEEN.map((optie) => <option key={optie.value} value={optie.value}>{optie.label}</option>)}
               </select>
             </label>
@@ -102,7 +108,7 @@ function CreateTicketDialog({ alert, onClose, onCreated }) {
           <span className={styles.hint}>Status wordt automatisch <strong>Open</strong>.</span>
           <button type="button" className={styles.secondary} onClick={sluit} disabled={bezig}>Annuleren</button>
           <button type="submit" className={styles.primary} disabled={bezig}>
-            {bezig ? 'Bezig...' : 'Claim & ticket aanmaken'}
+            {bezig ? 'Bezig...' : handmatig ? 'Opslaan' : 'Claim & ticket aanmaken'}
           </button>
         </footer>
       </form>

@@ -343,6 +343,32 @@
   font-size: 11px;
 }
 
+/* Knoppen in de kop */
+.kopKnoppen {
+  display: flex;
+  gap: 8px;
+}
+
+.knopNieuw {
+  border-color: #d88a47;
+  color: #ffe0bd;
+  background: #493020;
+}
+
+.knopNieuw:hover:not(:disabled) {
+  border-color: #f0a865;
+}
+
+.succes .melderSluit {
+  float: right;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1;
+}
+
 /* Bewerken en afronden */
 .formulier {
   gap: 10px;

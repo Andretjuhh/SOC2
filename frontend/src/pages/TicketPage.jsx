@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 
+import CreateTicketDialog from '../features/tickets/CreateTicketDialog'
 import TicketDetailPanel from '../features/tickets/TicketDetailPanel'
 import useTickets from '../features/tickets/useTickets'
 import {
@@ -14,6 +15,8 @@ function TicketPage() {
   const [statusFilter, setStatusFilter] = useState(ALLE)
   const [zoekterm, setZoekterm] = useState('')
   const [geselecteerdId, setGeselecteerdId] = useState(null)
+  const [nieuwOpen, setNieuwOpen] = useState(false)
+  const [succes, setSucces] = useState('')
 
   const aantalPerStatus = useMemo(() => {
     const aantallen = Object.fromEntries(STATUSSEN.map((status) => [status.value, 0]))
@@ -33,6 +36,12 @@ function TicketPage() {
 
   const geselecteerd = tickets.find((ticket) => ticket.ticketID === geselecteerdId) ?? null
 
+  function handleNieuwAangemaakt(ticket) {
+    setNieuwOpen(false)
+    setSucces(`Ticket ${ticket.ticketNummer} is aangemaakt met status Open.`)
+    herlaad()
+  }
+
   function selecteerMetToets(event, ticketId) {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault()
@@ -45,12 +54,24 @@ function TicketPage() {
       <header className={styles.kop}>
         <div>
           <h1>Tickets</h1>
-          <p>Tickets die vanuit alerts zijn geclaimd. Klik op een ticket voor alle details.</p>
+          <p>Tickets ontstaan meestal door een alert te claimen. Voor een melding zonder alert maak je hier handmatig een ticket aan.</p>
         </div>
-        <button type="button" className={styles.knop} onClick={herlaad} disabled={loading}>
-          {loading ? 'Laden…' : 'Vernieuwen'}
-        </button>
+        <div className={styles.kopKnoppen}>
+          <button type="button" className={styles.knop} onClick={herlaad} disabled={loading}>
+            {loading ? 'Laden…' : 'Vernieuwen'}
+          </button>
+          <button type="button" className={`${styles.knop} ${styles.knopNieuw}`} onClick={() => { setSucces(''); setNieuwOpen(true) }}>
+            + Nieuw ticket
+          </button>
+        </div>
       </header>
+
+      {succes && (
+        <p className={styles.succes} role="status">
+          {succes}
+          <button type="button" className={styles.melderSluit} onClick={() => setSucces('')} aria-label="Melding sluiten">×</button>
+        </p>
+      )}
 
       <div className={styles.indeling}>
         <section className={`panel ${styles.lijst}`}>
@@ -143,6 +164,13 @@ function TicketPage() {
             ticket={geselecteerd}
             onClose={() => setGeselecteerdId(null)}
             onGewijzigd={herlaad}
+          />
+        )}
+
+        {nieuwOpen && (
+          <CreateTicketDialog
+            onClose={() => setNieuwOpen(false)}
+            onCreated={handleNieuwAangemaakt}
           />
         )}
       </div>

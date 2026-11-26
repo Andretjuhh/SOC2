@@ -42,6 +42,12 @@ function stelCategorieVoor(alertNaam) {
   return match ? match[0] : 'Overig'
 }
 
+// Leeg formulier voor een handmatig ticket, bijvoorbeeld een melding van een klant zonder alert.
+// Prioriteit en categorie zijn leeg, zodat de analist ze bewust moet kiezen.
+export function leegTicket() {
+  return { titel: '', beschrijving: '', prioriteit: '', categorie: '' }
+}
+
 // Maakt de beginwaarden van het ticketformulier op basis van een alert uit de alertlijst.
 export function maakTicketVanAlert(alert) {
   const beschrijving = [

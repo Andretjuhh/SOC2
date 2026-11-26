@@ -81,7 +81,7 @@ function TicketBewerken({ ticket, onGewijzigd }) {
   async function afronden(event) {
     event.preventDefault()
     if (!oplossing.trim()) {
-      setMelding({ soort: 'fout', tekst: 'Vul een oplossing in om het ticket af te ronden.' })
+      setMelding({ soort: 'fout', tekst: 'Het is verplicht om een oplossingsbeschrijving in te voeren voordat een ticket kan worden afgerond.' })
       return
     }
     const gelukt = await voerUit(() => rondTicketAf(ticket.ticketID, oplossing, versie), 'Ticket afgerond.')
@@ -120,7 +120,7 @@ function TicketBewerken({ ticket, onGewijzigd }) {
       <form className={`${styles.sectie} ${styles.formulier}`} onSubmit={afronden}>
         <h3>Afronden</h3>
         <label className={styles.veld}>
-          <span>Oplossing (verplicht)</span>
+          <span>Oplossingsbeschrijving (verplicht)</span>
           <textarea
             rows={4}
             value={oplossing}
