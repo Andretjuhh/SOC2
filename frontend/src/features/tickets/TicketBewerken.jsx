@@ -80,7 +80,16 @@ function TicketBewerken({ ticket, onGewijzigd }) {
       setMelding({ soort: 'fout', tekst: 'De beschrijving mag niet leeg zijn.' })
       return
     }
-    voerUit(() => updateTicket(ticket.ticketID, wijzigingen, versie), 'Wijzigingen opgeslagen.')
+    // Pas bij het opslaan: is de beschrijving van een open ticket gewijzigd en is de status
+    // niet zelf aangepast, dan zetten we het ticket op In behandeling.
+    const teVersturen = { ...wijzigingen }
+    const automatisch = 'beschrijving' in teVersturen && !('status' in teVersturen) && ticket.status === 'Open'
+    if (automatisch) teVersturen.status = 'InBehandeling'
+
+    voerUit(
+      () => updateTicket(ticket.ticketID, teVersturen, versie),
+      automatisch ? 'Wijzigingen opgeslagen. Het ticket staat nu op In behandeling.' : 'Wijzigingen opgeslagen.',
+    )
   }
 
   async function afronden(event) {
@@ -124,8 +133,14 @@ function TicketBewerken({ ticket, onGewijzigd }) {
             value={waarden.beschrijving}
             onChange={(event) => wijzig('beschrijving', event.target.value)}
             disabled={bezig}
+            aria-describedby={ticket.status === 'Open' ? 'beschrijving-hint' : undefined}
           />
         </label>
+        {ticket.status === 'Open' && (
+          <small id="beschrijving-hint" className={styles.hint}>
+            Sla je een gewijzigde beschrijving op, dan gaat de status automatisch naar In behandeling.
+          </small>
+        )}
 
         <button type="submit" className={styles.knop} disabled={nietKlaar || !heeftWijzigingen}>
           {bezig ? 'Bezig…' : 'Wijzigingen opslaan'}

@@ -370,6 +370,11 @@
 }
 
 /* Bewerken en afronden */
+.hint {
+  color: var(--subtle);
+  font-size: 11px;
+}
+
 .formulier {
   gap: 10px;
   padding-top: 14px;
