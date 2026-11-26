@@ -19,7 +19,7 @@ public static class UpdateTicketHandler
 
         // 2. Ticket ophalen (alleen van de eigen klant)
         var ticket = await db.Tickets
-            .SingleOrDefaultAsync(x => x.TicketID == id && x.KlantID == gebruiker.KlantID, ct);
+            .SingleOrDefaultAsync(x => x.TicketID == id && (RechtenMatrix.IsBeheerder(gebruiker) || x.KlantID == gebruiker.KlantID), ct);
         if (ticket is null)
             return Results.NotFound(new { melding = "Ticket niet gevonden." });
 

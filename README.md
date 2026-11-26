@@ -72,6 +72,42 @@ Met het meegeleverde startprofiel draait de API in Development op `http://localh
 Swagger staat op `http://localhost:5294/swagger`; de healthcheck staat op `/health`.
 Herstart de backend na het wijzigen van je connection string.
 
+## Standaardaccounts seeden
+
+Bij het starten in Development controleert de backend automatisch de drie testaccounts.
+Ontbrekende accounts worden aangemaakt. Het vaste wachtwoord staat in `AccountSeeder.cs`.
+Voer vanuit `backend/coreApi/` uit nadat je je eigen databaseverbinding hebt ingesteld.
+
+```powershell
+dotnet ef database update -- --environment Development
+dotnet run
+```
+
+De seeder maakt de rollen `Klant`, `SOC-analist` en `Beheerder` en de accounts
+`klant`, `analist` en `beheerder`. Ze zijn gekoppeld aan dezelfde actieve ontwikkelklant.
+Alle drie gebruiken het wachtwoord uit `TestWachtwoord` in `AccountSeeder.cs`.
+Bij een wijziging van deze constante werkt de volgende Development-start ook bestaande seedaccounts bij.
+De klant krijgt `tickets.lezen`; de analist en beheerder krijgen ook `tickets.schrijven`.
+Voor een testsessie zonder wachtwoord en MFA gebruik je in Development via Swagger
+`POST /api/dev/login/klant`, `POST /api/dev/login/analist` of `POST /api/dev/login/beheerder`.
+Deze route werkt alleen voor de actieve, niet-geblokkeerde seedaccounts van de ontwikkelklant.
+Open daarna de frontend op `/overview`. Voor de normale login via `/login`
+loggen de drie seedaccounts in Development direct in met hun wachtwoord, zonder MFA.
+Andere accounts en omgevingen gebruiken de normale MFA-stap. Koppel die accounts
+eenmalig via `/mfa-setup` aan je eigen authenticator in de ontwikkelomgeving.
+
+Opnieuw uitvoeren maakt geen duplicaten en bewaart MFA en accountstatus.
+Alleen het wachtwoord van de drie seedaccounts wordt zo nodig gelijkgezet aan `TestWachtwoord`.
+Een bestaande accountnaam met een andere rol of klant geeft een fout.
+Bij bestaande standaardrollen vult de seeder ontbrekende ticketrechten aan en behoudt hij extra rechten.
+Met `dotnet run -- --seed` kun je ook alleen seeden en daarna stoppen.
+De SQL Server-uitvoering gebruikt een serialiseerbare transactie. Bij een fout worden de wijzigingen teruggedraaid.
+De automatische seeder draait alleen in Development.
+
+De rolcomments beschrijven de bedoelde toegang. De huidige alertcode controleert alleen actieve
+klanttoegang. De beheerder heeft voorlopig de werkende ticketrechten voor de ontwikkelklant;
+globaal systeembeheer en verdere rollencontroles worden bij de betreffende functies uitgewerkt.
+
 ## Testaccount maken
 
 Open Swagger en stuur naar `POST /api/gebruikers`:
@@ -83,9 +119,7 @@ Open Swagger en stuur naar `POST /api/gebruikers`:
   "email": "testanalist@example.test",
   "wachtwoord": "dit is mijn testwachtwoord",
   "isActief": true,
-  "klantId": null,
-  "rol": "Testanalist",
-  "rechten": []
+  "klantId": null
 }
 ```
 
@@ -93,8 +127,9 @@ Een nieuwe gebruiker geeft HTTP 201. Identity hasht het wachtwoord; de hash komt
 Nieuwe wachtwoorden moeten minimaal 15 tekens hebben, zonder verplichte hoofdletters, cijfers of symbolen.
 De huidige request accepteert maximaal 1024 tekens voor het wachtwoord.
 
-De handler zoekt de rol op en maakt die aan als hij ontbreekt.
-Bestaat de rol al, dan moeten de opgegeven rechten overeenkomen.
+Nieuwe accounts krijgen altijd `Geen toegang`, zonder rechten.
+Een beheerder kan via `/gebruikers` een rol en klant toekennen.
+De actuele rollen, rechten en API-controles staan in [de rechtenmatrix](docs/rechtenmatrix.md).
 Een klantgebruiker krijgt het ID van een bestaande klant; voor een interne analist mag `klantId` null zijn.
 Klanten kunnen in Development via `POST /api/klanten` aangemaakt worden.
 De aanmaakroutes voor gebruikers en klanten zijn alleen in Development geregistreerd.
@@ -123,14 +158,16 @@ Gebruik je een andere backendpoort, wijzig dan de proxy in `frontend/vite.config
    Daarnaast begrenst de API loginverzoeken tot tien per minuut per IP-adres (HTTP 429).
 5. Bij een geldig wachtwoord geeft de API HTTP 202 met `mfaVereist`, `challengeId` en `verlooptOp`.
    De challenge is vijf minuten geldig en wordt tijdelijk in het geheugen van dit API-proces bewaard.
-6. React toont dat extra verificatie nodig is. Er wordt op dit moment nog geen ingelogde sessie gemaakt.
+6. De drie seedaccounts krijgen in Development na een geldig wachtwoord direct een sessie.
+   Andere accounts gaan naar `/mfa`, waar de authenticatorcode wordt gecontroleerd voordat een sessie wordt gemaakt.
+7. Het dashboard controleert `/api/auth/me`. Een nieuw account zonder toegekende rechten ziet een wachtmelding.
 
-**MFA-verificatie en het activeren van de sessie moeten nog op US-02 aangesloten worden.**
+De MFA-routes zijn aangesloten. Voor een nieuw account koppel je de authenticator in Development via `/mfa-setup`.
 Een API-herstart verwijdert de tijdelijke challenges.
 De bestaande routes `GET /api/auth/me` en `POST /api/auth/logout` vereisen een ingelogde sessie.
 `/me` geeft de rol, rechten en klanttoegang terug en meldt ontbrekende actieve klanttoegang.
-Het demo-dashboard is nog rechtstreeks bereikbaar; de React-routebeveiliging en volledige koppeling met
-RBAC/tenantafscherming uit US-03 en US-05 zijn nog niet afgerond.
+De backend controleert rechten en klanttoegang voor alerts en tickets.
+Beheerders kunnen via `/gebruikers` standaardrollen en klanten toekennen.
 
 ## Controleren
 

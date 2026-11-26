@@ -21,18 +21,8 @@ public static class CreateGebruikerHandler
         if (request.KlantId.HasValue && !await db.Klanten.AnyAsync(x => x.KlantID == request.KlantId, ct))
             return Results.ValidationProblem(new Dictionary<string, string[]> { ["klantId"] = ["Klant bestaat niet."] });
 
-        var rol = await ZoekRol(request.Rol, db, ct);
-        if (rol is null)
-        {
-            rol = await MaakRol(request.Rol, request.Rechten, db, ct);
-        }
-        else
-        {
-            var rechten = request.Rechten.Select(x => x.Trim()).ToHashSet(StringComparer.OrdinalIgnoreCase);
-            var bestaandeRechten = rol.Rechten.Select(x => x.Naam).ToHashSet(StringComparer.OrdinalIgnoreCase);
-            if (!bestaandeRechten.SetEquals(rechten))
-                return Results.Conflict(new { melding = "Deze rol bestaat met andere rechten." });
-        }
+        var rol = await db.Rollen.SingleOrDefaultAsync(rol => rol.Naam == RechtenMatrix.GeenToegang, ct);
+        if (rol is null) rol = new Rol { Naam = RechtenMatrix.GeenToegang };
 
         var gebruiker = new Gebruiker
         {
@@ -61,20 +51,4 @@ public static class CreateGebruikerHandler
         return Results.Created((string?)null, response);
     }
 
-    private static async Task<Rol?> ZoekRol(string naam, SOC2DBContext db, CancellationToken ct)
-    {
-        return await db.Rollen.Include(x => x.Rechten)
-            .SingleOrDefaultAsync(x => x.Naam == naam.Trim(), ct);
-    }
-
-    private static async Task<Rol> MaakRol(string naam, string[] rechten, SOC2DBContext db, CancellationToken ct)
-    {
-        var rol = new Rol { Naam = naam.Trim() };
-        foreach (var rechtNaam in rechten.Select(x => x.Trim()).Distinct(StringComparer.OrdinalIgnoreCase))
-        {
-            var recht = await db.Rechten.SingleOrDefaultAsync(x => x.Naam == rechtNaam, ct);
-            rol.Rechten.Add(recht ?? new Recht { Naam = rechtNaam });
-        }
-        return rol;
-    }
 }

@@ -29,18 +29,15 @@ public static class TicketToegang
     }
 
     public static bool MagLezen(Gebruiker gebruiker) =>
-        HeeftActieveKlant(gebruiker) && (HeeftRecht(gebruiker, RechtLezen) || HeeftRecht(gebruiker, RechtSchrijven));
+        RechtenMatrix.HeeftKlanttoegang(gebruiker) && (HeeftRecht(gebruiker, RechtLezen) || HeeftRecht(gebruiker, RechtSchrijven));
 
     public static bool MagSchrijven(Gebruiker gebruiker) =>
-        HeeftActieveKlant(gebruiker) && HeeftRecht(gebruiker, RechtSchrijven);
+        RechtenMatrix.HeeftKlanttoegang(gebruiker) && HeeftRecht(gebruiker, RechtSchrijven);
 
     // UU6b: melding als iemand anders het ticket tussentijds heeft gewijzigd
     public static IResult ConflictMelding() => Results.Problem(statusCode: 409,
         title: "Dit ticket is tussentijds gewijzigd door een andere gebruiker. Ververs de pagina om de meest actuele gegevens te zien.");
 
-    private static bool HeeftActieveKlant(Gebruiker gebruiker) =>
-        gebruiker.Klant is { isActief: true };
-
     private static bool HeeftRecht(Gebruiker gebruiker, string recht) =>
-        gebruiker.Rol.Rechten.Any(x => x.Naam.Equals(recht, StringComparison.OrdinalIgnoreCase));
+        RechtenMatrix.HeeftRecht(gebruiker, recht);
 }

@@ -11,6 +11,7 @@ node_modules
 dist
 dist-ssr
 *.local
+/Claude outputs/
 bin/
 obj/
 .vs/

@@ -35,7 +35,7 @@ public static class ListTicketsHandler
 
         // Alleen tickets van de eigen klant, nieuwste eerst
         var regels = await db.Tickets.AsNoTracking()
-            .Where(x => x.KlantID == gebruiker.KlantID)
+            .Where(x => (RechtenMatrix.IsBeheerder(gebruiker) || x.KlantID == gebruiker.KlantID))
             .OrderByDescending(x => x.AangemaaktOp)
             .Select(x => new
             {

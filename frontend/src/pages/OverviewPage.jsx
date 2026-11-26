@@ -1,10 +1,13 @@
 import Icon from '../layouts/Icon.jsx'
+import { useContext } from 'react'
+import SessionContext from '../features/auth/SessionContext'
 import AlertGeneratorPanel from '../features/alerts/generator/AlertGeneratorPanel'
 import useAlertData from '../features/alerts/state/useAlertData'
 
 const chartPoints = '0,118 40,108 80,112 120,78 160,88 200,62 240,74 280,44 320,56 360,30 400,48 440,37 480,55 520,23 560,39 600,15'
 
 function OverviewPage() {
+  const gebruiker = useContext(SessionContext)
   const { metrics, loading, error, testTemplates, generator, resetAlertList } = useAlertData()
   const activeCount = metrics.activeCount
   const severityCounts = metrics.severityCounts
@@ -91,12 +94,12 @@ function OverviewPage() {
           </div>
         </article>
       </section>
-      <AlertGeneratorPanel
+      {gebruiker?.rechten.includes('alerts.schrijven') && <AlertGeneratorPanel
         generator={generator}
         templates={testTemplates}
         loading={loading}
         onReset={resetAlertList}
-      />
+      />}
       </>
   )
 }

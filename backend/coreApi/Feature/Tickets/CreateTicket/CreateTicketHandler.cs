@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using CoreApi.Data;
 using CoreApi.Domain;
+using Microsoft.EntityFrameworkCore;
 
 namespace CoreApi.Features.Tickets.CreateTicket;
 
@@ -16,6 +17,12 @@ public static class CreateTicketHandler
         if (!TicketToegang.MagSchrijven(gebruiker))
             return Results.Problem(statusCode: 403, title: "Je hebt geen rechten om tickets aan te maken.");
 
+        var klantId = request.KlantId ?? gebruiker.KlantID;
+        if (!RechtenMatrix.IsBeheerder(gebruiker) && klantId != gebruiker.KlantID)
+            return Results.Forbid();
+        if (klantId is null || !await db.Klanten.AnyAsync(klant => klant.KlantID == klantId && klant.isActief, ct))
+            return Results.BadRequest(new { melding = "Kies een actieve klant." });
+
         // 2. Invoer controleren
         var fout = request.Valideer();
         if (fout is not null)
@@ -29,7 +36,7 @@ public static class CreateTicketHandler
             Prioriteit = request.Prioriteit,
             Categorie = request.Categorie,
             Status = TicketStatus.Open,
-            KlantID = gebruiker.KlantID!.Value,
+            KlantID = klantId.Value,
             AangemaaktDoor = gebruiker.Id
         };
 

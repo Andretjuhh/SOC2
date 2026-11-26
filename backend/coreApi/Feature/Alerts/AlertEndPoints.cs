@@ -9,7 +9,7 @@ public static class AlertEndpoints
 {
     public static void MapAlertEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/alerts").WithTags("Alerts");
+        var group = app.MapGroup("/api/alerts").WithTags("Alerts").RequireAuthorization();
 
         group.MapPost("", CreateAlertHandler.Handle).WithName("CreateAlert")
             .Produces<AlertResponse>(201).Produces(401).Produces(403).ProducesValidationProblem();

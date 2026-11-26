@@ -5,7 +5,8 @@ public sealed record CreateAlertRequest(
     string Severity,
     string AffectedAsset,
     DateTime DetectionTime,
-    DateTime? ClosedTime = null)
+    DateTime? ClosedTime = null,
+    Guid? KlantId = null)
 {
     public string? Valideer()
     {

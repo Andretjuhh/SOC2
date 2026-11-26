@@ -1,8 +1,11 @@
 import Icon from './Icon.jsx'
+import { useContext } from 'react'
+import SessionContext from '../features/auth/SessionContext'
 import { NavLink } from 'react-router-dom'
 import useAlertData from '../features/alerts/state/useAlertData'
 
 function Sidebar() {
+  const gebruiker = useContext(SessionContext)
   const { metrics, loading } = useAlertData()
 
   return (
@@ -11,6 +14,7 @@ function Sidebar() {
 
       <div className="nav-label">SECURITY OPERATIONS</div>
       <nav className="main-nav" aria-label="Main navigation">
+        {gebruiker?.magGebruikersBeheren && <NavLink className="nav-link" to="/gebruikers">Gebruikersbeheer</NavLink>}
         <NavLink className="nav-link" to="/overview"> <Icon name="grid"/> <span>Overview</span> </NavLink>
         <NavLink className="nav-link" to="/alerts"><span className="nav-icon"><Icon name="shield" /></span><span>Active alerts</span><span className="nav-count" aria-label={loading ? 'Loading active alert count' : `${metrics.activeCount} active alerts`}>{loading ? '…' : metrics.activeCount}</span></NavLink>
         <NavLink className="nav-link" to="/tickets"> <Icon name = "ticket"/> <span>Tickets</span> </NavLink>

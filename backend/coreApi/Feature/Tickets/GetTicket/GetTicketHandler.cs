@@ -1,3 +1,4 @@
+using CoreApi.Domain;
 using System.Security.Claims;
 using CoreApi.Data;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +18,7 @@ public static class GetTicketHandler
 
         // Alleen tickets van de eigen klant. Een ticket van een andere klant geeft 404.
         var ticket = await db.Tickets.AsNoTracking()
-            .SingleOrDefaultAsync(x => x.TicketID == id && x.KlantID == gebruiker.KlantID, ct);
+            .SingleOrDefaultAsync(x => x.TicketID == id && (RechtenMatrix.IsBeheerder(gebruiker) || x.KlantID == gebruiker.KlantID), ct);
 
         if (ticket is null)
             return Results.NotFound(new { melding = "Ticket niet gevonden." });

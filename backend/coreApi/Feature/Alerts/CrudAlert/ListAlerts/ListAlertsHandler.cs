@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using CoreApi.Data;
+using CoreApi.Domain;
 using CoreApi.Features.Alerts;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,12 +14,12 @@ public static class ListAlertsHandler
         CancellationToken cancellationToken)
     {
         var user = await AlertToegang.HaalGebruikerOp(principal, db, cancellationToken);
-        if (user?.KlantID is not Guid customerId)
+        if (user is null || !AlertToegang.MagLezen(user))
             return Results.Forbid();
 
         var alerts = await db.Alerts.AsNoTracking()
             .Include(alert => alert.AssignedUser)
-            .Where(alert => alert.KlantID == customerId)
+            .Where(alert => RechtenMatrix.IsBeheerder(user) || alert.KlantID == user.KlantID)
             .OrderByDescending(alert => alert.DetectionTime)
             .ToListAsync(cancellationToken);
 
@@ -31,7 +32,7 @@ public static class ListAlertsHandler
         CancellationToken cancellationToken)
     {
         var user = await AlertToegang.HaalGebruikerOp(principal, db, cancellationToken);
-        return user is null
+        return user is null || !AlertToegang.MagLezen(user)
             ? Results.Forbid()
             : Results.Ok(AlertTestData.Alerts);
     }

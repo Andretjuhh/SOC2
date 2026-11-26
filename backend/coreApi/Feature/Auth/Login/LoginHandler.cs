@@ -1,12 +1,13 @@
 using Microsoft.AspNetCore.Identity;
 using CoreApi.Domain;
+using CoreApi.Data;
 
 namespace CoreApi.Features.Auth.Login;
 
 public static class LoginHandler
 {
     public static async Task<IResult> Handle(LoginRequest request, UserManager<Gebruiker> users,
-        SignInManager<Gebruiker> signIn, MfaChallengeStore challenges)
+        SignInManager<Gebruiker> signIn, MfaChallengeStore challenges, IHostEnvironment environment)
     {
         var fout = request.Valideer();
         if (fout is not null)
@@ -16,6 +17,12 @@ public static class LoginHandler
         var gebruiker = await ControleerInloggegevens(request, users, signIn, challenges);
         if (gebruiker is null)
             return Results.Problem(statusCode: 401, title: "Ongeldige inloggegevens.");
+
+        if (environment.IsDevelopment() && AccountSeeder.IsTestAccount(gebruiker))
+        {
+            await signIn.SignInAsync(gebruiker, isPersistent: false);
+            return Results.Ok(new LoginResponse(false, null, null));
+        }
 
         var challenge = challenges.Create(gebruiker.Id);
         return Results.Accepted(value: new LoginResponse(true, challenge.Id, challenge.VerlooptOp));

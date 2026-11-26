@@ -9,6 +9,7 @@ import MfaPage from './pages/MfaPage'
 import MfaSetupPage from './pages/MfaSetupPage'
 import OverviewPage from './pages/OverviewPage'
 import TicketPage from './pages/TicketPage'
+import GebruikersPage from './pages/GebruikersPage'
 import AppLayout from './layouts/AppLayout'
 import RequireLogin from './layouts/RequireLogin'
 
@@ -30,6 +31,7 @@ function AppRoutes({ query, onQueryChange }) {
             <Route path="/activity" element={<ActivityPage />} />
             <Route path="/assets" element={<AssetsPage />} />
             <Route path="/tickets" element={<TicketPage />} />
+            <Route path="/gebruikers" element={<GebruikersPage />} />
             <Route path="/cases" element={<CasesPage />} />
           </Route>
         </Route>

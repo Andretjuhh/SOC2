@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using CoreApi.Data;
+using CoreApi.Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace CoreApi.Features.Alerts.GetAlert;
@@ -13,11 +14,12 @@ public static class GetAlertHandler
         CancellationToken cancellationToken)
     {
         var gebruiker = await AlertToegang.HaalGebruikerOp(principal, db, cancellationToken);
-        if (gebruiker?.KlantID is not Guid klantId)
+        if (gebruiker is null || !AlertToegang.MagLezen(gebruiker))
             return Results.Forbid();
 
         var alert = await db.Alerts.AsNoTracking()
-            .SingleOrDefaultAsync(x => x.AlertID == id && x.KlantID == klantId, cancellationToken);
+            .SingleOrDefaultAsync(alert => alert.AlertID == id &&
+                (RechtenMatrix.IsBeheerder(gebruiker) || alert.KlantID == gebruiker.KlantID), cancellationToken);
 
         return alert is null
             ? Results.NotFound()
