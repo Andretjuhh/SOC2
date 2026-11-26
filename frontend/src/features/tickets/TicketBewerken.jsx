@@ -33,9 +33,10 @@ function TicketBewerken({ ticket, onGewijzigd }) {
   const [bezig, setBezig] = useState(false)
   const [melding, setMelding] = useState(null)
 
-  // Prioriteit en categorie liggen vast bij het aanmaken; alleen de status is hier te wijzigen
+  // Prioriteit en categorie liggen vast bij het aanmaken; status en beschrijving zijn te wijzigen
   const waarden = {
     status: aanpassingen.status ?? ticket.status,
+    beschrijving: aanpassingen.beschrijving ?? ticket.beschrijving,
   }
 
   // Alleen de velden die echt anders zijn dan het ticket gaan mee naar de API
@@ -75,6 +76,10 @@ function TicketBewerken({ ticket, onGewijzigd }) {
   function opslaan(event) {
     event.preventDefault()
     if (!heeftWijzigingen) return
+    if (!waarden.beschrijving.trim()) {
+      setMelding({ soort: 'fout', tekst: 'De beschrijving mag niet leeg zijn.' })
+      return
+    }
     voerUit(() => updateTicket(ticket.ticketID, wijzigingen, versie), 'Wijzigingen opgeslagen.')
   }
 
@@ -112,8 +117,18 @@ function TicketBewerken({ ticket, onGewijzigd }) {
           </select>
         </label>
 
+        <label className={styles.veld}>
+          <span>Beschrijving</span>
+          <textarea
+            rows={7}
+            value={waarden.beschrijving}
+            onChange={(event) => wijzig('beschrijving', event.target.value)}
+            disabled={bezig}
+          />
+        </label>
+
         <button type="submit" className={styles.knop} disabled={nietKlaar || !heeftWijzigingen}>
-          {bezig ? 'Bezig…' : 'Status opslaan'}
+          {bezig ? 'Bezig…' : 'Wijzigingen opslaan'}
         </button>
       </form>
 

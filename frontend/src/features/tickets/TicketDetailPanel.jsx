@@ -85,10 +85,13 @@ function TicketDetailPanel({ ticket, onClose, onGewijzigd }) {
         <Gegeven label="Afgerond">{formatDatumTijd(ticket.afgerondOp)}</Gegeven>
       </dl>
 
-      <section className={styles.sectie}>
-        <h3>Beschrijving</h3>
-        <p className={styles.tekst}>{ticket.beschrijving}</p>
-      </section>
+      {/* Bij een open ticket staat de beschrijving in het bewerkformulier hieronder */}
+      {ticket.status === 'Afgerond' && (
+        <section className={styles.sectie}>
+          <h3>Beschrijving</h3>
+          <p className={styles.tekst}>{ticket.beschrijving}</p>
+        </section>
+      )}
 
       {ticket.oplossing && (
         <section className={styles.sectie}>
