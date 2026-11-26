@@ -370,6 +370,20 @@
 }
 
 /* Bewerken en afronden */
+.vasteTekst {
+  margin: 0;
+  padding: 8px 10px;
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+  color: var(--muted);
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 .hint {
   color: var(--subtle);
   font-size: 11px;

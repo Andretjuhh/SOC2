@@ -17,6 +17,23 @@ export const CATEGORIEEN = [
 
 export const TITEL_MAX_LENGTE = 200
 
+// Kopregel in de beschrijving: alles erboven komt uit de alert en ligt vast, eronder schrijft de analist
+export const BEVINDINGEN_KOP = 'Bevindingen:'
+
+// Splitst een beschrijving in het vaste deel uit de alert en de vrije bevindingen.
+// Zonder kopregel (bijvoorbeeld een handmatig ticket) is de hele tekst vrij.
+export function splitsBeschrijving(beschrijving) {
+  const regels = beschrijving.split('\n')
+  const index = regels.findIndex((regel) => regel.trim() === BEVINDINGEN_KOP)
+  if (index === -1) return { vast: null, vrij: beschrijving }
+  return { vast: regels.slice(0, index + 1).join('\n'), vrij: regels.slice(index + 1).join('\n') }
+}
+
+export function voegBeschrijvingSamen(vast, vrij) {
+  if (vast === null) return vrij
+  return vrij.trim() ? `${vast}\n${vrij}` : vast
+}
+
 const PRIORITEIT_PER_SEVERITY = {
   Critical: 'Kritiek',
   High: 'Hoog',
@@ -58,7 +75,7 @@ export function maakTicketVanAlert(alert) {
     `Getroffen asset: ${alert.target}`,
     `Gedetecteerd: ${alert.time}`,
     '',
-    'Bevindingen:',
+    BEVINDINGEN_KOP,
     '',
   ].join('\n')
 

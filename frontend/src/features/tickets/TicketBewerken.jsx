@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 
 import { fetchTicket, rondTicketAf, updateTicket } from './api/ticketsApi'
 import { STATUSSEN } from './ticketLabels'
+import { splitsBeschrijving, voegBeschrijvingSamen } from './ticketOptions'
 import styles from './TicketPage.module.css'
 
 // Afronden heeft een eigen formulier, dus die status staat niet in de keuzelijst
@@ -33,10 +34,12 @@ function TicketBewerken({ ticket, onGewijzigd }) {
   const [bezig, setBezig] = useState(false)
   const [melding, setMelding] = useState(null)
 
-  // Prioriteit en categorie liggen vast bij het aanmaken; status en beschrijving zijn te wijzigen
+  // Prioriteit en categorie liggen vast bij het aanmaken. Van de beschrijving ligt alles boven
+  // "Bevindingen:" vast (gegevens uit de alert); alleen de bevindingen eronder zijn te wijzigen.
+  const { vast, vrij } = splitsBeschrijving(ticket.beschrijving)
   const waarden = {
     status: aanpassingen.status ?? ticket.status,
-    beschrijving: aanpassingen.beschrijving ?? ticket.beschrijving,
+    beschrijving: voegBeschrijvingSamen(vast, aanpassingen.vrij ?? vrij),
   }
 
   // Alleen de velden die echt anders zijn dan het ticket gaan mee naar de API
@@ -126,19 +129,28 @@ function TicketBewerken({ ticket, onGewijzigd }) {
           </select>
         </label>
 
+        {vast !== null && (
+          <div className={styles.veld}>
+            <span>Gegevens uit de alert (niet aan te passen)</span>
+            {/* De kopregel "Bevindingen:" zelf tonen we niet; het tekstveld eronder heet al zo */}
+            <pre className={styles.vasteTekst}>{vast.split('\n').slice(0, -1).join('\n').trimEnd()}</pre>
+          </div>
+        )}
+
         <label className={styles.veld}>
-          <span>Beschrijving</span>
+          <span>{vast !== null ? 'Bevindingen' : 'Beschrijving'}</span>
           <textarea
             rows={7}
-            value={waarden.beschrijving}
-            onChange={(event) => wijzig('beschrijving', event.target.value)}
+            value={aanpassingen.vrij ?? vrij}
+            onChange={(event) => wijzig('vrij', event.target.value)}
+            placeholder={vast !== null ? 'Wat heb je onderzocht en gevonden?' : undefined}
             disabled={bezig}
             aria-describedby={ticket.status === 'Open' ? 'beschrijving-hint' : undefined}
           />
         </label>
         {ticket.status === 'Open' && (
           <small id="beschrijving-hint" className={styles.hint}>
-            Sla je een gewijzigde beschrijving op, dan gaat de status automatisch naar In behandeling.
+            Sla je gewijzigde {vast !== null ? 'bevindingen' : 'beschrijving'} op, dan gaat de status automatisch naar In behandeling.
           </small>
         )}
 

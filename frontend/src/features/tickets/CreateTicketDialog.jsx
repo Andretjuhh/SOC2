@@ -1,14 +1,20 @@
 import { useEffect, useRef, useState } from 'react'
 
 import { createTicket } from './api/createTicket'
-import { CATEGORIEEN, PRIORITEITEN, TITEL_MAX_LENGTE, leegTicket, maakTicketVanAlert } from './ticketOptions'
+import {
+  CATEGORIEEN, PRIORITEITEN, TITEL_MAX_LENGTE, leegTicket, maakTicketVanAlert, splitsBeschrijving, voegBeschrijvingSamen,
+} from './ticketOptions'
 import styles from './CreateTicketDialog.module.css'
 
 // Met een alert: het formulier bij Claim (de hoofdroute). Zonder alert: een handmatig ticket.
 function CreateTicketDialog({ alert = null, onClose, onCreated }) {
   const handmatig = alert === null
   const dialogRef = useRef(null)
-  const [formulier, setFormulier] = useState(() => (handmatig ? leegTicket() : maakTicketVanAlert(alert)))
+  // Bij een alert ligt alles boven "Bevindingen:" vast; het tekstveld bevat alleen de bevindingen
+  const [vasteTekst] = useState(() => (handmatig ? null : splitsBeschrijving(maakTicketVanAlert(alert).beschrijving).vast))
+  const [formulier, setFormulier] = useState(() => (
+    handmatig ? leegTicket() : { ...maakTicketVanAlert(alert), beschrijving: '' }
+  ))
   const [bezig, setBezig] = useState(false)
   const [fout, setFout] = useState('')
 
@@ -31,7 +37,9 @@ function CreateTicketDialog({ alert = null, onClose, onCreated }) {
     event.preventDefault()
     if (bezig) return
 
-    if (!formulier.titel.trim() || !formulier.beschrijving.trim() || !formulier.prioriteit || !formulier.categorie) {
+    const beschrijving = voegBeschrijvingSamen(vasteTekst, formulier.beschrijving)
+
+    if (!formulier.titel.trim() || !beschrijving.trim() || !formulier.prioriteit || !formulier.categorie) {
       setFout('Vul alle verplichte velden in: titel, beschrijving, prioriteit en categorie.')
       return
     }
@@ -40,7 +48,7 @@ function CreateTicketDialog({ alert = null, onClose, onCreated }) {
     setFout('')
 
     try {
-      const ticket = await createTicket(formulier)
+      const ticket = await createTicket({ ...formulier, beschrijving })
       onCreated(ticket)
     } catch (error) {
       setFout(error.message)
@@ -96,10 +104,28 @@ function CreateTicketDialog({ alert = null, onClose, onCreated }) {
             </label>
           </div>
 
-          <label className={styles.field}>
-            <span>Beschrijving</span>
-            <textarea value={formulier.beschrijving} onChange={wijzig('beschrijving')} rows={9} required />
-          </label>
+          {handmatig ? (
+            <label className={styles.field}>
+              <span>Beschrijving</span>
+              <textarea value={formulier.beschrijving} onChange={wijzig('beschrijving')} rows={9} required />
+            </label>
+          ) : (
+            <>
+              <div className={styles.field}>
+                <span>Gegevens uit de alert (niet aan te passen)</span>
+                <pre className={styles.vasteTekst}>{vasteTekst.split('\n').slice(0, -1).join('\n').trimEnd()}</pre>
+              </div>
+              <label className={styles.field}>
+                <span>Bevindingen</span>
+                <textarea
+                  value={formulier.beschrijving}
+                  onChange={wijzig('beschrijving')}
+                  rows={5}
+                  placeholder="Wat heb je onderzocht en gevonden?"
+                />
+              </label>
+            </>
+          )}
         </fieldset>
 
         {fout && <p className={styles.error} role="alert">{fout}</p>}
