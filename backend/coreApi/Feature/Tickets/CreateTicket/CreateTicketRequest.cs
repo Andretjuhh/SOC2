@@ -2,8 +2,9 @@ using CoreApi.Domain;
 
 namespace CoreApi.Features.Tickets.CreateTicket;
 
+// AlertID is optioneel: ingevuld bij claimen vanuit een alert, leeg bij een handmatig ticket
 public sealed record CreateTicketRequest(string Titel, string Beschrijving,
-    TicketPrioriteit Prioriteit, TicketCategorie Categorie)
+    TicketPrioriteit Prioriteit, TicketCategorie Categorie, int? AlertID = null)
 {
     public string? Valideer()
     {

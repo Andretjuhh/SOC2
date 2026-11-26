@@ -1,0 +1,119 @@
+.kop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.verblijftijd {
+  margin: 0;
+  padding: 8px 10px;
+  border: 1px solid #5c4030;
+  border-radius: 6px;
+  color: #f2c99d;
+  background: #30241e;
+  font-size: 12px;
+}
+
+.formulier {
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-raised);
+}
+
+.rij {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+/* Verticale tijdlijn: een lijn met een stip per gebeurtenis */
+.lijst {
+  display: grid;
+  gap: 14px;
+  margin: 4px 0 0;
+  padding: 0 0 0 18px;
+  border-left: 2px solid var(--border);
+  list-style: none;
+}
+
+.regel {
+  position: relative;
+  display: grid;
+  gap: 4px;
+}
+
+.regel::before {
+  position: absolute;
+  top: 4px;
+  left: -24px;
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--panel);
+  border-radius: 50%;
+  background: #8b8fa3;
+  content: '';
+}
+
+.regelAlert::before {
+  background: #ec707d;
+}
+
+.regelKop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.regelKop time {
+  color: #f0b879;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.chip,
+.chipAlert {
+  padding: 1px 7px;
+  border: 1px solid #4a3a7a;
+  border-radius: 999px;
+  color: #c7b8f5;
+  background: #1e1833;
+  font-size: 10px;
+}
+
+.chipAlert {
+  border-color: #4a2d37;
+  color: #f2939c;
+  background: #2d2028;
+}
+
+.beschrijving {
+  margin: 0;
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+.bron {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.verwijder {
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  color: var(--muted);
+  background: none;
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+}
+
+.verwijder:hover:not(:disabled) {
+  color: #f2939c;
+}

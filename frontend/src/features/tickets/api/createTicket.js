@@ -16,6 +16,9 @@ function meldingVoorStatus(status, data) {
   if (status === 403) {
     return data?.title ?? 'Je hebt geen rechten om tickets aan te maken.'
   }
+  if (status === 404) {
+    return data?.melding ?? 'De alert bestaat niet (meer).'
+  }
   return data?.title ?? `Ticket aanmaken is mislukt (${status}).`
 }
 
@@ -33,6 +36,8 @@ export async function createTicket(ticket) {
         beschrijving: ticket.beschrijving.trim(),
         prioriteit: ticket.prioriteit,
         categorie: ticket.categorie,
+        // Koppeling met de alert waaruit het ticket ontstaat (leeg bij een handmatig ticket)
+        alertID: ticket.alertID ?? null,
       }),
     })
   } catch {

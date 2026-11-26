@@ -17,7 +17,8 @@ public sealed record TicketResponse(
     DateTime? AfgerondOp,
     byte[] Versie,
     int? CaseID,
-    string? CaseNummer)
+    string? CaseNummer,
+    int? AlertID)
 {
     public static string Nummer(int ticketId) => $"SOC-{ticketId:D6}";   // bijv. SOC-000001
 
@@ -36,5 +37,6 @@ public sealed record TicketResponse(
         ticket.Versie,
         ticket.CaseID,
         // Afgeleid: een ticket met een CaseID is geëscaleerd naar die case
-        ticket.CaseID is null ? null : $"CASE-{ticket.CaseID.Value:D4}");
+        ticket.CaseID is null ? null : $"CASE-{ticket.CaseID.Value:D4}",
+        ticket.AlertID);
 }

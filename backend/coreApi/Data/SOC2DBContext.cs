@@ -14,6 +14,7 @@ public class SOC2DBContext(DbContextOptions<SOC2DBContext> options) : IdentityUs
     public DbSet<TicketHistorie> TicketHistorie => Set<TicketHistorie>();
     public DbSet<Alert> Alerts => Set<Alert>();
     public DbSet<Case> Cases => Set<Case>();
+    public DbSet<CaseTijdlijnItem> CaseTijdlijn => Set<CaseTijdlijnItem>();
 
     protected override void OnModelCreating(ModelBuilder model)
     {

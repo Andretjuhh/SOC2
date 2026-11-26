@@ -48,7 +48,8 @@ function CreateTicketDialog({ alert = null, onClose, onCreated }) {
     setFout('')
 
     try {
-      const ticket = await createTicket({ ...formulier, beschrijving })
+      const alertID = Number.isInteger(alert?.id) ? alert.id : null
+      const ticket = await createTicket({ ...formulier, beschrijving, alertID })
       onCreated(ticket)
     } catch (error) {
       setFout(error.message)
@@ -131,7 +132,11 @@ function CreateTicketDialog({ alert = null, onClose, onCreated }) {
         {fout && <p className={styles.error} role="alert">{fout}</p>}
 
         <footer className={styles.footer}>
-          <span className={styles.hint}>Status wordt automatisch <strong>Open</strong>.</span>
+          <span className={styles.hint}>
+            {handmatig
+              ? <>Status wordt automatisch <strong>Open</strong>.</>
+              : <>Status wordt <strong>Open</strong>, of <strong>In behandeling</strong> als je al bevindingen invult.</>}
+          </span>
           <button type="button" className={styles.secondary} onClick={sluit} disabled={bezig}>Annuleren</button>
           <button type="submit" className={styles.primary} disabled={bezig}>
             {bezig ? 'Bezig...' : handmatig ? 'Opslaan' : 'Claim & ticket aanmaken'}

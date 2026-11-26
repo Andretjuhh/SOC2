@@ -1,14 +1,15 @@
-import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 
 import { fetchCase, updateCase } from './api/casesApi'
+import AanvalsTijdlijn from './AanvalsTijdlijn'
+import Venster from '../tickets/Venster'
 import { CASE_STATUSSEN, caseStatusLabel } from './caseLabels'
 import { PRIORITEIT_STIJL, formatDatumTijd, statusLabel } from '../tickets/ticketLabels'
 import styles from '../tickets/TicketPage.module.css'
 
-const DOSSIERVELDEN = ['status', 'rootCause', 'aanvalsTijdlijn']
+const DOSSIERVELDEN = ['status', 'rootCause']
 
-function useCase(caseId) {
+function useCase(caseId, ververs) {
   const [zaak, setZaak] = useState(null)
   const [fout, setFout] = useState('')
   const [herlaadTeller, setHerlaadTeller] = useState(0)
@@ -21,7 +22,7 @@ function useCase(caseId) {
       .catch((error) => { if (error.name !== 'AbortError') setFout(error.message) })
 
     return () => controller.abort()
-  }, [caseId, herlaadTeller])
+  }, [caseId, herlaadTeller, ververs])
 
   return { zaak, setZaak, fout, herlaad: () => setHerlaadTeller((teller) => teller + 1) }
 }
@@ -35,19 +36,12 @@ function Gegeven({ label, children }) {
   )
 }
 
-function CaseDetailDialog({ caseId, onClose, onGewijzigd }) {
-  const { zaak, setZaak, fout: laadFout, herlaad } = useCase(caseId)
+function CaseDetailDialog({ caseId, onClose, onGewijzigd, onOpenTicket, ververs = 0, ingebed = false }) {
+  const { zaak, setZaak, fout: laadFout, herlaad } = useCase(caseId, ververs)
   const [aanpassingen, setAanpassingen] = useState({})
   const [bezig, setBezig] = useState(false)
   const [melding, setMelding] = useState(null)
-  const dialogRef = useRef(null)
 
-  // Native <dialog>, net als het ticketvenster
-  useEffect(() => {
-    const dialog = dialogRef.current
-    if (dialog && !dialog.open) dialog.showModal()
-    return () => dialog?.close()
-  }, [])
 
   // Wat in het formulier staat: aanpassingen van de analist, anders de waarde uit de case
   const waarden = Object.fromEntries(DOSSIERVELDEN.map((veld) => [veld, aanpassingen[veld] ?? zaak?.[veld] ?? '']))
@@ -92,13 +86,7 @@ function CaseDetailDialog({ caseId, onClose, onGewijzigd }) {
   const afgesloten = zaak?.status === 'Afgesloten'
 
   return (
-    <dialog
-      ref={dialogRef}
-      className={styles.detail}
-      aria-labelledby="case-detail-titel"
-      onCancel={(event) => { event.preventDefault(); onClose() }}
-      onClick={(event) => { if (event.target === dialogRef.current) onClose() }}
-    >
+    <Venster ingebed={ingebed} labelId="case-detail-titel" onClose={onClose}>
       <div className={styles.detailInhoud}>
         <header className={styles.detailHeader}>
           <div>
@@ -138,7 +126,10 @@ function CaseDetailDialog({ caseId, onClose, onGewijzigd }) {
                 <ul className={styles.ticketLijst}>
                   {zaak.tickets.map((ticket) => (
                     <li key={ticket.ticketID}>
-                      <Link to={`/tickets?ticket=${ticket.ticketID}`} className={styles.nummer}>{ticket.ticketNummer}</Link>
+                      {/* Opent het ticketvenster boven op deze case */}
+                      <button type="button" className={`${styles.nummer} ${styles.linkKnop}`} onClick={() => onOpenTicket(ticket.ticketID)}>
+                        {ticket.ticketNummer}
+                      </button>
                       <span className={styles.ticketLijstTitel}>{ticket.titel}</span>
                       <span className={`${styles.status} ${styles[`status${ticket.status}`]}`}>{statusLabel(ticket.status)}</span>
                     </li>
@@ -147,13 +138,18 @@ function CaseDetailDialog({ caseId, onClose, onGewijzigd }) {
               )}
             </section>
 
+            {/* Wat de aanvaller deed en wanneer; los van de historie (wat analisten deden) */}
+            <AanvalsTijdlijn
+              zaak={zaak}
+              afgesloten={afgesloten}
+              onBijgewerkt={(bijgewerkt) => { setZaak(bijgewerkt); onGewijzigd() }}
+            />
+
             {afgesloten ? (
               <section className={styles.sectie}>
                 <h3>Onderzoeksdossier</h3>
                 <h4 className={styles.subkop}>Root cause</h4>
                 <p className={styles.tekst}>{zaak.rootCause ?? '—'}</p>
-                <h4 className={styles.subkop}>Aanvalstijdlijn</h4>
-                <p className={styles.tekst}>{zaak.aanvalsTijdlijn ?? '—'}</p>
                 <p className={styles.leeg}>Deze case is afgesloten en kan niet meer worden bewerkt.</p>
               </section>
             ) : (
@@ -178,16 +174,6 @@ function CaseDetailDialog({ caseId, onClose, onGewijzigd }) {
                   />
                 </label>
 
-                <label className={styles.veld}>
-                  <span>Aanvalstijdlijn</span>
-                  <textarea
-                    rows={6}
-                    value={waarden.aanvalsTijdlijn}
-                    onChange={(event) => wijzig('aanvalsTijdlijn', event.target.value)}
-                    placeholder={'Bijv.\n09:12 eerste phishingmail ontvangen\n09:40 inlog vanaf onbekend IP'}
-                    disabled={bezig}
-                  />
-                </label>
                 <small className={styles.hint}>Een case afsluiten kan pas als de root cause is ingevuld.</small>
 
                 <button type="submit" className={styles.knop} disabled={bezig || !heeftWijzigingen}>
@@ -204,7 +190,7 @@ function CaseDetailDialog({ caseId, onClose, onGewijzigd }) {
           </p>
         )}
       </div>
-    </dialog>
+    </Venster>
   )
 }
 

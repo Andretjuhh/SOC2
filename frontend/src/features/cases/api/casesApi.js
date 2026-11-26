@@ -21,3 +21,13 @@ export function updateCase(caseId, wijzigingen, versie) {
 export function promoveerTicket(ticketId, gegevens, versie) {
   return sendJson(`/api/tickets/${ticketId}/promoveren`, 'POST', { ...gegevens, versie })
 }
+
+// POST /api/cases/{id}/tijdlijn: gebeurtenis toevoegen. Tijdstip = wanneer het gebeurde (ISO, UTC).
+export function voegTijdlijnItemToe(caseId, item) {
+  return sendJson(`/api/cases/${caseId}/tijdlijn`, 'POST', item)
+}
+
+// DELETE /api/cases/{id}/tijdlijn/{itemId}: een verkeerd ingevoerde gebeurtenis verwijderen
+export function verwijderTijdlijnItem(caseId, itemId) {
+  return sendJson(`/api/cases/${caseId}/tijdlijn/${itemId}`, 'DELETE')
+}

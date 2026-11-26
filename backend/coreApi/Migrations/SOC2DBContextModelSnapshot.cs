@@ -80,9 +80,6 @@ namespace coreApi.Migrations
                     b.Property<DateTime>("AangemaaktOp")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("AanvalsTijdlijn")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime?>("AfgeslotenOp")
                         .HasColumnType("datetime2");
 
@@ -122,6 +119,46 @@ namespace coreApi.Migrations
                     b.HasIndex("KlantID");
 
                     b.ToTable("Cases");
+                });
+
+            modelBuilder.Entity("CoreApi.Domain.CaseTijdlijnItem", b =>
+                {
+                    b.Property<int>("CaseTijdlijnItemID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CaseTijdlijnItemID"));
+
+                    b.Property<string>("Beschrijving")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int>("CaseID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Fase")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("Systeem")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime>("Tijdstip")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ToegevoegdDoor")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("ToegevoegdOp")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("CaseTijdlijnItemID");
+
+                    b.HasIndex("CaseID", "Tijdstip");
+
+                    b.ToTable("CaseTijdlijn", (string)null);
                 });
 
             modelBuilder.Entity("CoreApi.Domain.Gebruiker", b =>
@@ -501,6 +538,17 @@ namespace coreApi.Migrations
                     b.Navigation("Klant");
                 });
 
+            modelBuilder.Entity("CoreApi.Domain.CaseTijdlijnItem", b =>
+                {
+                    b.HasOne("CoreApi.Domain.Case", "Case")
+                        .WithMany("Tijdlijn")
+                        .HasForeignKey("CaseID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Case");
+                });
+
             modelBuilder.Entity("CoreApi.Domain.Gebruiker", b =>
                 {
                     b.HasOne("CoreApi.Domain.Klant", "Klant")
@@ -600,6 +648,8 @@ namespace coreApi.Migrations
             modelBuilder.Entity("CoreApi.Domain.Case", b =>
                 {
                     b.Navigation("Tickets");
+
+                    b.Navigation("Tijdlijn");
                 });
 
             modelBuilder.Entity("CoreApi.Domain.Gebruiker", b =>

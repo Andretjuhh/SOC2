@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using CoreApi.Data;
 using CoreApi.Domain;
+using Microsoft.EntityFrameworkCore;
 
 namespace CoreApi.Features.Tickets.CreateTicket;
 
@@ -21,9 +22,28 @@ public static class CreateTicketHandler
         if (fout is not null)
             return Results.ValidationProblem(new Dictionary<string, string[]> { ["ticket"] = [fout] });
 
-        // 3. Ticket maken, altijd met status "Open"
+        // 3. Komt het ticket uit een alert? Dan moet die alert bij de eigen klant horen
+        //    en mag er nog geen ticket voor bestaan (één alert = hoogstens één ticket).
+        if (request.AlertID is not null)
+        {
+            var alertBestaat = await db.Alerts
+                .AnyAsync(x => x.AlertID == request.AlertID && x.KlantID == gebruiker.KlantID, ct);
+            if (!alertBestaat)
+                return Results.NotFound(new { melding = "Alert niet gevonden." });
+
+            var bestaandTicket = await db.Tickets
+                .Where(x => x.AlertID == request.AlertID)
+                .Select(x => (int?)x.TicketID)
+                .FirstOrDefaultAsync(ct);
+            if (bestaandTicket is not null)
+                return Results.Problem(statusCode: 409,
+                    title: $"Voor deze alert bestaat al ticket {TicketResponse.Nummer(bestaandTicket.Value)}.");
+        }
+
+        // 4. Ticket maken, altijd met status "Open"
         var ticket = new Ticket
         {
+            AlertID = request.AlertID,
             Titel = request.Titel.Trim(),
             Beschrijving = request.Beschrijving.Trim(),
             Prioriteit = request.Prioriteit,
@@ -33,7 +53,7 @@ public static class CreateTicketHandler
             AangemaaktDoor = gebruiker.Id
         };
 
-        // 4. Historie-regel toevoegen (wordt in dezelfde transactie opgeslagen)
+        // 5. Historie-regel toevoegen (wordt in dezelfde transactie opgeslagen)
         ticket.Historie.Add(new TicketHistorie
         {
             Actie = "Aangemaakt",
@@ -41,8 +61,27 @@ public static class CreateTicketHandler
             GebruikerID = gebruiker.Id
         });
 
+        // Bevindingen al ingevuld bij het claimen? Dan wordt er meteen aan gewerkt.
+        if (TicketRegels.PasStatusAan(ticket))
+        {
+            ticket.Historie.Add(new TicketHistorie
+            {
+                Actie = "Bijgewerkt",
+                Omschrijving = "Status: Open -> InBehandeling (automatisch: bevindingen ingevuld bij aanmaken).",
+                GebruikerID = gebruiker.Id
+            });
+        }
+
         db.Tickets.Add(ticket);
-        await db.SaveChangesAsync(ct);
+        try
+        {
+            await db.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateException) when (request.AlertID is not null)
+        {
+            // Twee analisten claimden tegelijk: de unieke index op AlertID houdt de tweede tegen
+            return Results.Problem(statusCode: 409, title: "Voor deze alert is net al een ticket aangemaakt.");
+        }
 
         return Results.Created($"/api/tickets/{ticket.TicketID}", TicketResponse.Van(ticket));
     }

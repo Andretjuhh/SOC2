@@ -1,10 +1,14 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { fetchTicketHistorie } from './api/ticketsApi'
 import TicketBewerken from './TicketBewerken'
+import Venster from './Venster'
 import { PRIORITEIT_STIJL, categorieLabel, formatDatumTijd, initialen, statusLabel } from './ticketLabels'
 import styles from './TicketPage.module.css'
+
+// Historie-regels die de backend zelf toevoegt (automatische statuscorrectie) hebben geen gebruiker
+const SYSTEEM_ID = '00000000-0000-0000-0000-000000000000'
 
 function useTicketHistorie(ticketId, laatstGewijzigdOp) {
   const [historie, setHistorie] = useState([])
@@ -34,26 +38,13 @@ function Gegeven({ label, children }) {
   )
 }
 
-function TicketDetailPanel({ ticket, onClose, onGewijzigd }) {
+function TicketDetailPanel({ ticket, onClose, onGewijzigd, ingebed = false }) {
   const { historie, loading, error } = useTicketHistorie(ticket.ticketID, ticket.laatstGewijzigdOp)
 
-  const dialogRef = useRef(null)
 
-  // Native <dialog>, net als het ticketformulier bij Claim: focusbeheer, Escape en een backdrop
-  useEffect(() => {
-    const dialog = dialogRef.current
-    if (dialog && !dialog.open) dialog.showModal()
-    return () => dialog?.close()
-  }, [])
 
   return (
-    <dialog
-      ref={dialogRef}
-      className={styles.detail}
-      aria-labelledby="ticket-detail-titel"
-      onCancel={(event) => { event.preventDefault(); onClose() }}
-      onClick={(event) => { if (event.target === dialogRef.current) onClose() }}
-    >
+    <Venster ingebed={ingebed} labelId="ticket-detail-titel" onClose={onClose}>
       <div className={styles.detailInhoud}>
       <header className={styles.detailHeader}>
         <div>
@@ -123,8 +114,12 @@ function TicketDetailPanel({ ticket, onClose, onGewijzigd }) {
                 </div>
                 <p>{regel.omschrijving}</p>
                 <span className={styles.door}>
-                  door {regel.gebruikerNaam ?? 'onbekend'}
-                  {regel.gebruikersnaam && <span className={styles.gebruikersnaam}> @{regel.gebruikersnaam}</span>}
+                  {regel.gebruikerID === SYSTEEM_ID ? 'door het systeem' : (
+                    <>
+                      door {regel.gebruikerNaam ?? 'onbekend'}
+                      {regel.gebruikersnaam && <span className={styles.gebruikersnaam}> @{regel.gebruikersnaam}</span>}
+                    </>
+                  )}
                 </span>
               </li>
             ))}
@@ -132,7 +127,7 @@ function TicketDetailPanel({ ticket, onClose, onGewijzigd }) {
         )}
       </section>
       </div>
-    </dialog>
+    </Venster>
   )
 }
 

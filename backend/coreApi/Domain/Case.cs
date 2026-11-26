@@ -25,7 +25,6 @@ public class Case
 
     // Onderzoeksdossier: wordt tijdens het onderzoek ingevuld
     public string? RootCause { get; set; }
-    public string? AanvalsTijdlijn { get; set; }
 
     // Bij welke klant (tenant) hoort deze case
     public Guid KlantID { get; set; }
@@ -42,4 +41,7 @@ public class Case
 
     // Alle tickets die naar deze case zijn gepromoveerd
     public ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
+
+    // Aanvalstijdlijn: handmatig toegevoegde gebeurtenissen (alerts komen er automatisch bij)
+    public ICollection<CaseTijdlijnItem> Tijdlijn { get; set; } = new List<CaseTijdlijnItem>();
 }

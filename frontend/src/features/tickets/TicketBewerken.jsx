@@ -38,6 +38,9 @@ function TicketBewerken({ ticket, onGewijzigd }) {
   // Prioriteit en categorie liggen vast bij het aanmaken. Van de beschrijving ligt alles boven
   // "Bevindingen:" vast (gegevens uit de alert); alleen de bevindingen eronder zijn te wijzigen.
   const { vast, vrij } = splitsBeschrijving(ticket.beschrijving)
+  // Zelfde regel als de backend (TicketRegels): met bevindingen of in een case kan een ticket niet op Open
+  const openToegestaan = !ticket.caseID && !(vast !== null && vrij.trim())
+  const statusOpties = BEWERKBARE_STATUSSEN.filter((optie) => optie.value !== 'Open' || openToegestaan || ticket.status === 'Open')
   const waarden = {
     status: aanpassingen.status ?? ticket.status,
     beschrijving: voegBeschrijvingSamen(vast, aanpassingen.vrij ?? vrij),
@@ -126,9 +129,14 @@ function TicketBewerken({ ticket, onGewijzigd }) {
         <label className={styles.veld}>
           <span>Status</span>
           <select value={waarden.status} onChange={(event) => wijzig('status', event.target.value)} disabled={bezig}>
-            {BEWERKBARE_STATUSSEN.map((optie) => <option key={optie.value} value={optie.value}>{optie.label}</option>)}
+            {statusOpties.map((optie) => <option key={optie.value} value={optie.value}>{optie.label}</option>)}
           </select>
         </label>
+        {!openToegestaan && ticket.status !== 'Open' && (
+          <small className={styles.hint}>
+            {ticket.caseID ? 'Dit ticket zit in een case' : 'Dit ticket heeft bevindingen'} en kan daarom niet terug naar Open.
+          </small>
+        )}
 
         {vast !== null && (
           <div className={styles.veld}>
@@ -183,7 +191,11 @@ function TicketBewerken({ ticket, onGewijzigd }) {
           ticket={ticket}
           versie={versie}
           onGepromoveerd={(zaak) => {
-            setMelding({ soort: 'succes', tekst: `Ticket is geëscaleerd naar ${zaak.caseNummer}.` })
+            // De backend zet een open ticket bij promoveren op In behandeling
+            const tekst = ticket.status === 'Open'
+              ? `Ticket is geëscaleerd naar ${zaak.caseNummer} en staat nu op In behandeling.`
+              : `Ticket is geëscaleerd naar ${zaak.caseNummer}.`
+            setMelding({ soort: 'succes', tekst })
             onGewijzigd()
           }}
           onConflict={onGewijzigd}

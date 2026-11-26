@@ -1,0 +1,126 @@
+.raster {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+  padding: 4px 18px 18px;
+}
+
+/* Eén case = één blok. De gekleurde rand bovenaan is de prioriteit. */
+.kaart {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--border);
+  border-radius: 0 0 10px 10px;
+  background: var(--panel);
+  cursor: pointer;
+  text-align: left;
+}
+
+.kaart:hover,
+.kaart:focus-visible {
+  border-color: #3a3e52;
+  outline: none;
+}
+
+.kaartActief {
+  border-color: #d88a47;
+}
+
+.critical { border-top-color: #ec707d; }
+.high { border-top-color: #efa15d; }
+.medium { border-top-color: #e6bf63; }
+.low { border-top-color: #6c8ce6; }
+
+.kaartKop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.kaartTitel {
+  margin: 0;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.kaartInfo {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.tickets {
+  display: grid;
+  /* minmax(0, 1fr): anders wordt de kolom zo breed als de langste ticketregel en steekt die uit het blok */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ticket {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: var(--panel-raised);
+  color: inherit;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.ticket:hover {
+  border-color: #3a3e52;
+}
+
+.ticketTitel {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: #c4c6d2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meer {
+  padding: 2px 8px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.kaartVoet {
+  margin-top: auto;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.leeg {
+  padding: 32px 18px;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+}
+
+.ticketStatus {
+  flex-shrink: 0;
+  padding: 1px 6px;
+  font-size: 10px;
+}
+
+/* De ticketregel is een knop: opent het ticketvenster op deze pagina */
+.ticket {
+  width: 100%;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+}

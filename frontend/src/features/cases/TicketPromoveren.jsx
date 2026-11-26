@@ -9,7 +9,12 @@ import styles from '../tickets/TicketPage.module.css'
 function TicketPromoveren({ ticket, versie, onGepromoveerd, onConflict }) {
   const [open, setOpen] = useState(false)
   const [soort, setSoort] = useState('nieuw')
-  const [formulier, setFormulier] = useState({ titel: ticket.titel, beschrijving: '', prioriteit: ticket.prioriteit })
+  const [formulier, setFormulier] = useState({
+    // Vooraf ingevuld met de gegevens van het ticket (en dus van de alert); de analist kan het aanvullen
+    titel: ticket.titel,
+    beschrijving: ticket.beschrijving,
+    prioriteit: ticket.prioriteit,
+  })
   const [caseId, setCaseId] = useState('')
   const [cases, setCases] = useState(null)
   const [bezig, setBezig] = useState(false)

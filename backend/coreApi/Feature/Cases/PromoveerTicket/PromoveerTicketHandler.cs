@@ -73,12 +73,18 @@ public static class PromoveerTicketHandler
             actie = "geëscaleerd naar nieuwe";
         }
 
-        // 6. Ticket koppelen; de status van het ticket blijft gewoon staan
+        // 6. Ticket koppelen. Een open ticket wordt nu onderzocht, dus gaat het naar In behandeling.
         ticket.CaseID = zaak.CaseID;
+        var omschrijving = $"Ticket {actie} case {CaseResponse.Nummer(zaak.CaseID)}.";
+        if (ticket.Status == TicketStatus.Open)
+        {
+            ticket.Status = TicketStatus.InBehandeling;
+            omschrijving += " Status: Open -> InBehandeling.";
+        }
         ticket.Historie.Add(new TicketHistorie
         {
             Actie = "Geëscaleerd",
-            Omschrijving = $"Ticket {actie} case {CaseResponse.Nummer(zaak.CaseID)}.",
+            Omschrijving = omschrijving,
             GebruikerID = gebruiker.Id
         });
 

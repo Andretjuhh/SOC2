@@ -4,7 +4,7 @@ namespace CoreApi.Features.Cases.UpdateCase;
 
 // Alle velden zijn optioneel: alleen wat je meestuurt wordt aangepast
 public sealed record UpdateCaseRequest(string? Titel, string? Beschrijving, TicketPrioriteit? Prioriteit,
-    CaseStatus? Status, string? RootCause, string? AanvalsTijdlijn, byte[]? Versie)
+    CaseStatus? Status, string? RootCause, byte[]? Versie)
 {
     public string? Valideer()
     {

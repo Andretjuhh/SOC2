@@ -402,6 +402,7 @@
   font-size: 11px;
 }
 
+.veld input,
 .veld select,
 .veld textarea {
   width: 100%;
@@ -419,6 +420,7 @@
   line-height: 1.45;
 }
 
+.veld input:focus,
 .veld select:focus,
 .veld textarea:focus {
   border-color: #d88a47;
@@ -505,21 +507,53 @@
 }
 
 .keuze {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
+  display: inline-flex;
+  gap: 4px;
   margin: 0;
-  padding: 0;
-  border: 0;
-  color: #c4c6d2;
-  font-size: 12px;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-raised);
+  justify-self: start;
+}
+
+/* Gesegmenteerde knop: de radioknoppen blijven bestaan (toetsenbord en schermlezer), maar zijn onzichtbaar */
+.keuze input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .keuze label {
   display: flex;
   align-items: center;
   gap: 6px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  color: var(--muted);
   cursor: pointer;
+  font-size: 12px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.keuze label:hover {
+  color: var(--text);
+}
+
+.keuze label:has(input:checked) {
+  color: #c7b8f5;
+  background: #1e1833;
+  box-shadow: inset 0 0 0 1px #4a3a7a;
+}
+
+.keuze label:has(input:focus-visible) {
+  outline: 2px solid #d88a47;
+  outline-offset: 1px;
+}
+
+.keuze label:has(input:disabled) {
+  cursor: default;
+  opacity: 0.6;
 }
 
 .verborgen {
@@ -559,4 +593,82 @@
   color: var(--muted);
   font-size: 11px;
   font-weight: 600;
+}
+
+.linkKnop {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Werkruimte op de Cases-pagina: case en ticket naast elkaar in één venster */
+.werkruimte {
+  width: min(640px, calc(100vw - 32px));
+  max-width: none;
+  max-height: none;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  color: var(--text);
+  background: transparent;
+}
+
+.werkruimteBreed {
+  width: min(1280px, calc(100vw - 32px));
+}
+
+.werkruimte::backdrop {
+  background: rgb(5 6 10 / 70%);
+}
+
+.werkruimteRaster {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(420px, 100%), 1fr));
+  align-items: start;
+  gap: 16px;
+}
+
+/* Elk paneel scrollt los van het andere */
+.paneel {
+  position: relative;
+  max-height: calc(100vh - 64px);
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel);
+  box-shadow: 0 24px 60px rgb(0 0 0 / 55%);
+}
+
+/* Versleepbare vensters: pak ze bij de kopregel.
+   De kopregel loopt door tot de randen van het venster (ook de ruimte erboven), zodat je
+   overal bovenin kunt pakken, en blijft bovenaan staan als je naar beneden scrolt. */
+.sleepbaar .detailHeader {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  margin: -20px -20px 0;
+  padding: 20px 20px 12px;
+  border-bottom: 1px solid transparent;
+  background: var(--panel);
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.sleepbaar .detailHeader:active {
+  cursor: grabbing;
+}
+
+.sleepbaar .detailHeader button {
+  cursor: pointer;
+}
+
+/* Donkere scrollbalk in de vensters, passend bij het thema */
+.detail,
+.paneel {
+  scrollbar-color: #3a3e52 transparent;
+  scrollbar-width: thin;
 }

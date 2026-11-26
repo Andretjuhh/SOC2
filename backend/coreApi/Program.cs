@@ -32,6 +32,24 @@ builder.Services.AddRateLimiter(options =>
 
 var app = builder.Build();
 
+// Oude tickets bijwerken: alsnog aan hun alert koppelen (zie AlertKoppeling) en de statusregel
+// toepassen (zie TicketRegels). Lukt het niet, dan start de API gewoon.
+using (var scope = app.Services.CreateScope())
+{
+    try
+    {
+        var db = scope.ServiceProvider.GetRequiredService<SOC2DBContext>();
+        var gekoppeld = await AlertKoppeling.KoppelOudeTicketsAsync(db);
+        if (gekoppeld > 0)
+            app.Logger.LogInformation("{Aantal} oude ticket(s) gekoppeld aan hun alert.", gekoppeld);
+        await TicketRegels.CorrigeerBestaandeTicketsAsync(db);
+    }
+    catch (Exception fout)
+    {
+        app.Logger.LogWarning(fout, "Ticketstatussen konden niet worden gecorrigeerd.");
+    }
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

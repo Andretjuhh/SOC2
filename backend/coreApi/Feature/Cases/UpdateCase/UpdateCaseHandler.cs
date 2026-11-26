@@ -39,7 +39,6 @@ public static class UpdateCaseHandler
         if (request.Beschrijving is not null) zaak.Beschrijving = request.Beschrijving.Trim();
         if (request.Prioriteit is not null) zaak.Prioriteit = request.Prioriteit.Value;
         if (request.RootCause is not null) zaak.RootCause = LeegNaarNull(request.RootCause);
-        if (request.AanvalsTijdlijn is not null) zaak.AanvalsTijdlijn = LeegNaarNull(request.AanvalsTijdlijn);
 
         if (request.Status is not null && request.Status != zaak.Status)
         {

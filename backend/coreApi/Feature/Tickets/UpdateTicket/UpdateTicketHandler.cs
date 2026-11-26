@@ -66,6 +66,22 @@ public static class UpdateTicketHandler
             ticket.Status = request.Status.Value;
         }
 
+        // Statusregel: wie de beschrijving aanpast is ermee bezig, en een ticket met bevindingen
+        // of in een case mag niet op Open staan. Bewust terugzetten naar Open kan dan niet.
+        if (ticket.Status == TicketStatus.Open)
+        {
+            var beschrijvingGewijzigd = wijzigingen.Contains("Beschrijving gewijzigd");
+            if (beschrijvingGewijzigd || !TicketRegels.MagOpenZijn(ticket))
+            {
+                if (request.Status == TicketStatus.Open && !TicketRegels.MagOpenZijn(ticket))
+                    return Results.ValidationProblem(new Dictionary<string, string[]>
+                        { ["status"] = [TicketRegels.OpenNietToegestaan] });
+
+                ticket.Status = TicketStatus.InBehandeling;
+                wijzigingen.Add("Status: Open -> InBehandeling (automatisch)");
+            }
+        }
+
         // Niets veranderd? Dan ook geen historie-regel
         if (wijzigingen.Count == 0)
             return Results.Ok(TicketResponse.Van(ticket));
