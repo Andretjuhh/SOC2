@@ -24,7 +24,9 @@ public class AccountSeeder(SOC2DBContext db, UserManager<Gebruiker> users)
         await using var transaction = await db.Database.BeginTransactionAsync(IsolationLevel.Serializable);
 
         await MaakTestklant();
-        await ZoekOfMaakRol(RechtenMatrix.GeenToegang, []);
+        var rol = await ZoekRol(RechtenMatrix.GeenToegang);
+        if (rol is null) rol = await MaakRol(RechtenMatrix.GeenToegang);
+        await WerkRechtenBij(rol, []);
         await MaakKlantAccount();
         await MaakAnalistAccount();
         await MaakBeheerderAccount();
@@ -54,7 +56,9 @@ public class AccountSeeder(SOC2DBContext db, UserManager<Gebruiker> users)
         //Dit is dan een randomn ass gebruiker van dus zo'n bedrijf..
         // hoort enkel en allen eigen klantgegevens en tickets te lezen, geen tickets te wijzigen.
         // Mag alerts bekijken, maar geen alerts claimen of aanmaken.
-        var rol = await ZoekOfMaakRol(RechtenMatrix.Klant, RechtenMatrix.VoorRol(RechtenMatrix.Klant));
+        var rol = await ZoekRol(RechtenMatrix.Klant);
+        if (rol is null) rol = await MaakRol(RechtenMatrix.Klant);
+        await WerkRechtenBij(rol, RechtenMatrix.VoorRol(RechtenMatrix.Klant));
         var gebruiker = new Gebruiker
         {
             Naam = "Testklant",
@@ -71,7 +75,9 @@ public class AccountSeeder(SOC2DBContext db, UserManager<Gebruiker> users)
     {
         // hoort alerts en tickets voor toegewezen klanten te behandelen,
         // zou geen gebruikers of rollen mogen beheren.
-        var rol = await ZoekOfMaakRol(RechtenMatrix.Analist, RechtenMatrix.VoorRol(RechtenMatrix.Analist));
+        var rol = await ZoekRol(RechtenMatrix.Analist);
+        if (rol is null) rol = await MaakRol(RechtenMatrix.Analist);
+        await WerkRechtenBij(rol, RechtenMatrix.VoorRol(RechtenMatrix.Analist));
         var gebruiker = new Gebruiker
         {
             Naam = "Testanalist",
@@ -88,7 +94,9 @@ public class AccountSeeder(SOC2DBContext db, UserManager<Gebruiker> users)
     {
         // Hoort uiteindelijk denk ik dan alle klanten, gebruikers en rollen te beheren.
         // Heeft klantoverschrijdende toegang en mag rollen aan gebruikers toekennen.
-        var rol = await ZoekOfMaakRol(RechtenMatrix.Beheerder, RechtenMatrix.VoorRol(RechtenMatrix.Beheerder));
+        var rol = await ZoekRol(RechtenMatrix.Beheerder);
+        if (rol is null) rol = await MaakRol(RechtenMatrix.Beheerder);
+        await WerkRechtenBij(rol, RechtenMatrix.VoorRol(RechtenMatrix.Beheerder));
         var gebruiker = new Gebruiker
         {
             Naam = "Testbeheerder",
@@ -101,17 +109,22 @@ public class AccountSeeder(SOC2DBContext db, UserManager<Gebruiker> users)
         await BewaarAccount(gebruiker);
     }
 
-    private async Task<Rol> ZoekOfMaakRol(string naam, string[] rechten)
+    private async Task<Rol?> ZoekRol(string naam)
     {
-        var rol = await db.Rollen.Include(rol => rol.Rechten)
+        return await db.Rollen.Include(rol => rol.Rechten)
             .SingleOrDefaultAsync(rol => rol.Naam == naam);
+    }
 
-        if (rol is null)
-        {
-            rol = new Rol { Naam = naam };
-            db.Rollen.Add(rol);
-        }
+    private async Task<Rol> MaakRol(string naam)
+    {
+        var rol = new Rol { Naam = naam };
+        db.Rollen.Add(rol);
+        await db.SaveChangesAsync();
+        return rol;
+    }
 
+    private async Task WerkRechtenBij(Rol rol, string[] rechten)
+    {
         foreach (var bestaand in rol.Rechten.ToList())
         {
             if (!rechten.Contains(bestaand.Naam, StringComparer.OrdinalIgnoreCase))
@@ -130,7 +143,6 @@ public class AccountSeeder(SOC2DBContext db, UserManager<Gebruiker> users)
             rol.Rechten.Add(recht);
         }
         await db.SaveChangesAsync();
-        return rol;
     }
 
     private async Task BewaarAccount(Gebruiker gebruiker)
