@@ -458,3 +458,105 @@
   color: #7fd9bf;
   background: #12261f;
 }
+
+/* Cases (FR-05) */
+.statusInOnderzoek {
+  border-color: #5c4030;
+  color: #f2c99d;
+  background: #30241e;
+}
+
+.statusAfgesloten {
+  border-color: #245446;
+  color: #7fd9bf;
+  background: #12261f;
+}
+
+/* Afgeleid uit CaseID: klikbaar naar het casedossier */
+.caseBadge {
+  padding: 3px 8px;
+  border: 1px solid #4a3a7a;
+  border-radius: 999px;
+  color: #c7b8f5;
+  background: #1e1833;
+  font-size: 11px;
+  text-decoration: none;
+}
+
+.caseBadge:hover {
+  border-color: #6a55b0;
+}
+
+.caseKlein {
+  display: block;
+  margin-top: 4px;
+  color: #c7b8f5;
+  font-size: 11px;
+}
+
+.knopPromoveer {
+  border-color: #4a3a7a;
+  color: #c7b8f5;
+}
+
+.knoppenRij {
+  display: flex;
+  gap: 8px;
+}
+
+.keuze {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: #c4c6d2;
+  font-size: 12px;
+}
+
+.keuze label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.verborgen {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.ticketLijst {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ticketLijst li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+}
+
+.ticketLijstTitel {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: #c4c6d2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.subkop {
+  margin: 8px 0 4px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+}

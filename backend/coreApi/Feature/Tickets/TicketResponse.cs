@@ -15,11 +15,15 @@ public sealed record TicketResponse(
     Guid AangemaaktDoor,
     DateTime AangemaaktOp,
     DateTime? AfgerondOp,
-    byte[] Versie)
+    byte[] Versie,
+    int? CaseID,
+    string? CaseNummer)
 {
+    public static string Nummer(int ticketId) => $"SOC-{ticketId:D6}";   // bijv. SOC-000001
+
     public static TicketResponse Van(Ticket ticket) => new(
         ticket.TicketID,
-        $"SOC-{ticket.TicketID:D6}",   // bijv. SOC-000001
+        Nummer(ticket.TicketID),
         ticket.Titel,
         ticket.Beschrijving,
         ticket.Prioriteit,
@@ -29,5 +33,8 @@ public sealed record TicketResponse(
         ticket.AangemaaktDoor,
         ticket.AangemaaktOp,
         ticket.AfgerondOp,
-        ticket.Versie);
+        ticket.Versie,
+        ticket.CaseID,
+        // Afgeleid: een ticket met een CaseID is geëscaleerd naar die case
+        ticket.CaseID is null ? null : $"CASE-{ticket.CaseID.Value:D4}");
 }

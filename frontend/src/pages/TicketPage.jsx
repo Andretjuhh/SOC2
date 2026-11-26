@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 
 import CreateTicketDialog from '../features/tickets/CreateTicketDialog'
 import TicketDetailPanel from '../features/tickets/TicketDetailPanel'
@@ -14,7 +15,10 @@ function TicketPage() {
   const { tickets, loading, error, herlaad } = useTickets()
   const [statusFilter, setStatusFilter] = useState(ALLE)
   const [zoekterm, setZoekterm] = useState('')
-  const [geselecteerdId, setGeselecteerdId] = useState(null)
+  // Het geopende ticket staat in de URL (?ticket=5), zodat een case er direct naartoe kan linken
+  const [zoekParams, setZoekParams] = useSearchParams()
+  const geselecteerdId = Number(zoekParams.get('ticket')) || null
+  const setGeselecteerdId = (ticketId) => setZoekParams(ticketId ? { ticket: String(ticketId) } : {})
   const [nieuwOpen, setNieuwOpen] = useState(false)
   const [succes, setSucces] = useState('')
 
@@ -28,7 +32,7 @@ function TicketPage() {
     const term = zoekterm.trim().toLowerCase()
     return tickets.filter((ticket) => {
       const statusKlopt = statusFilter === ALLE || ticket.status === statusFilter
-      const zoekKlopt = !term || [ticket.ticketNummer, ticket.titel, ticket.aangemaaktDoorNaam, ticket.aangemaaktDoorGebruikersnaam, ticket.beschrijving]
+      const zoekKlopt = !term || [ticket.ticketNummer, ticket.titel, ticket.aangemaaktDoorNaam, ticket.aangemaaktDoorGebruikersnaam, ticket.beschrijving, ticket.caseNummer ?? '']
         .join(' ').toLowerCase().includes(term)
       return statusKlopt && zoekKlopt
     })
@@ -128,7 +132,10 @@ function TicketPage() {
                       </span>
                     </td>
                     <td>{categorieLabel(ticket.categorie)}</td>
-                    <td><span className={`${styles.status} ${styles[`status${ticket.status}`]}`}>{statusLabel(ticket.status)}</span></td>
+                    <td>
+                      <span className={`${styles.status} ${styles[`status${ticket.status}`]}`}>{statusLabel(ticket.status)}</span>
+                      {ticket.caseNummer && <span className={styles.caseKlein}>→ {ticket.caseNummer}</span>}
+                    </td>
                     <td>
                       <span className={styles.persoon}>
                         <span className={styles.avatar} aria-hidden="true">{initialen(ticket.aangemaaktDoorNaam)}</span>

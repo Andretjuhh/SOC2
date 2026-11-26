@@ -6,6 +6,7 @@ using CoreApi.Features.Gebruikers.SetupMfa;
 using CoreApi.Features.Gebruikers.CreateGebruiker;
 using CoreApi.Features.Klant.CreateKlant;
 using CoreApi.Features.Alerts;
+using CoreApi.Features.Cases;
 using CoreApi.Features.Tickets;
 using Microsoft.EntityFrameworkCore;
 
@@ -47,6 +48,7 @@ app.UseAuthorization();
 app.MapAuthEndpoints();
 app.MapTicketEndpoints();
 app.MapAlertEndpoints();
+app.MapCaseEndpoints();
 
 app.MapGet("/health", () => TypedResults.Ok(new { status = "Healthy" }))
     .WithName("HealthCheck")

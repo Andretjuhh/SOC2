@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 
 import { fetchTicket, rondTicketAf, updateTicket } from './api/ticketsApi'
+import TicketPromoveren from '../cases/TicketPromoveren'
 import { STATUSSEN } from './ticketLabels'
 import { splitsBeschrijving, voegBeschrijvingSamen } from './ticketOptions'
 import styles from './TicketPage.module.css'
@@ -175,6 +176,19 @@ function TicketBewerken({ ticket, onGewijzigd }) {
           {bezig ? 'Bezig…' : 'Ticket afronden'}
         </button>
       </form>
+
+      {/* Een ticket hoort bij hoogstens één case: is het al geëscaleerd, dan staat dat als badge bovenaan */}
+      {!ticket.caseNummer && (
+        <TicketPromoveren
+          ticket={ticket}
+          versie={versie}
+          onGepromoveerd={(zaak) => {
+            setMelding({ soort: 'succes', tekst: `Ticket is geëscaleerd naar ${zaak.caseNummer}.` })
+            onGewijzigd()
+          }}
+          onConflict={onGewijzigd}
+        />
+      )}
 
       {versieFout && <p className={styles.fout} role="alert">{versieFout}</p>}
       {melding && (

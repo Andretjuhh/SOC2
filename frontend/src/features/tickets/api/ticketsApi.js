@@ -1,6 +1,6 @@
 import { TicketApiError } from './createTicket'
 
-function meldingVoorStatus(status, data) {
+export function meldingVoorStatus(status, data) {
   if (status === 400 && data?.errors) return Object.values(data.errors).flat().join(' ')
   if (status === 401) return 'Je bent niet ingelogd. Log in om tickets te bekijken.'
   if (status === 403) return data?.title ?? 'Je hebt geen rechten voor deze actie.'
@@ -9,7 +9,7 @@ function meldingVoorStatus(status, data) {
   return data?.title ?? `Het verzoek is mislukt (${status}).`
 }
 
-async function getJson(url, signal) {
+export async function getJson(url, signal) {
   let response
 
   try {
@@ -25,7 +25,7 @@ async function getJson(url, signal) {
 }
 
 // Voor verzoeken die iets wijzigen (PATCH, POST) met een JSON-body
-async function sendJson(url, method, body) {
+export async function sendJson(url, method, body) {
   let response
 
   try {

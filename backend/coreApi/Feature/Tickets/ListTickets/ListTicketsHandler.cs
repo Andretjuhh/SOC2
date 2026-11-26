@@ -21,7 +21,9 @@ public sealed record TicketOverzichtResponse(
     DateTime AangemaaktOp,
     DateTime? AfgerondOp,
     DateTime LaatstGewijzigdOp,
-    byte[] Versie);
+    byte[] Versie,
+    int? CaseID,
+    string? CaseNummer);
 
 public static class ListTicketsHandler
 {
@@ -66,7 +68,9 @@ public static class ListTicketsHandler
                 ticket.AangemaaktOp,
                 ticket.AfgerondOp,
                 regel.LaatsteWijziging ?? ticket.AangemaaktOp,
-                ticket.Versie);
+                ticket.Versie,
+                ticket.CaseID,
+                ticket.CaseNummer);
         }).ToList();
 
         return Results.Ok(tickets);

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 
 import { fetchTicketHistorie } from './api/ticketsApi'
 import TicketBewerken from './TicketBewerken'
@@ -68,6 +69,11 @@ function TicketDetailPanel({ ticket, onClose, onGewijzigd }) {
           <i className={`severity-dot ${PRIORITEIT_STIJL[ticket.prioriteit]}-dot`} />{ticket.prioriteit}
         </span>
         <span className={styles.categorie}>{categorieLabel(ticket.categorie)}</span>
+        {ticket.caseNummer && (
+          <Link className={styles.caseBadge} to={`/cases?case=${ticket.caseID}`}>
+            Geëscaleerd naar {ticket.caseNummer}
+          </Link>
+        )}
       </div>
 
       <dl className={styles.gegevens}>
