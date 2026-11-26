@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { fetchTicketHistorie } from './api/ticketsApi'
 import TicketBewerken from './TicketBewerken'
@@ -36,14 +36,24 @@ function Gegeven({ label, children }) {
 function TicketDetailPanel({ ticket, onClose, onGewijzigd }) {
   const { historie, loading, error } = useTicketHistorie(ticket.ticketID, ticket.laatstGewijzigdOp)
 
+  const dialogRef = useRef(null)
+
+  // Native <dialog>, net als het ticketformulier bij Claim: focusbeheer, Escape en een backdrop
   useEffect(() => {
-    function onKeyDown(event) { if (event.key === 'Escape') onClose() }
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [onClose])
+    const dialog = dialogRef.current
+    if (dialog && !dialog.open) dialog.showModal()
+    return () => dialog?.close()
+  }, [])
 
   return (
-    <aside className={styles.detail} aria-labelledby="ticket-detail-titel">
+    <dialog
+      ref={dialogRef}
+      className={styles.detail}
+      aria-labelledby="ticket-detail-titel"
+      onCancel={(event) => { event.preventDefault(); onClose() }}
+      onClick={(event) => { if (event.target === dialogRef.current) onClose() }}
+    >
+      <div className={styles.detailInhoud}>
       <header className={styles.detailHeader}>
         <div>
           <span className={styles.nummer}>{ticket.ticketNummer}</span>
@@ -112,7 +122,8 @@ function TicketDetailPanel({ ticket, onClose, onGewijzigd }) {
           </ol>
         )}
       </section>
-    </aside>
+      </div>
+    </dialog>
   )
 }
 

@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 
 import { fetchTicket, rondTicketAf, updateTicket } from './api/ticketsApi'
 import { STATUSSEN } from './ticketLabels'
-import { CATEGORIEEN, PRIORITEITEN } from './ticketOptions'
 import styles from './TicketPage.module.css'
 
 // Afronden heeft een eigen formulier, dus die status staat niet in de keuzelijst
@@ -34,10 +33,9 @@ function TicketBewerken({ ticket, onGewijzigd }) {
   const [bezig, setBezig] = useState(false)
   const [melding, setMelding] = useState(null)
 
+  // Prioriteit en categorie liggen vast bij het aanmaken; alleen de status is hier te wijzigen
   const waarden = {
     status: aanpassingen.status ?? ticket.status,
-    prioriteit: aanpassingen.prioriteit ?? ticket.prioriteit,
-    categorie: aanpassingen.categorie ?? ticket.categorie,
   }
 
   // Alleen de velden die echt anders zijn dan het ticket gaan mee naar de API
@@ -114,22 +112,8 @@ function TicketBewerken({ ticket, onGewijzigd }) {
           </select>
         </label>
 
-        <label className={styles.veld}>
-          <span>Prioriteit</span>
-          <select value={waarden.prioriteit} onChange={(event) => wijzig('prioriteit', event.target.value)} disabled={bezig}>
-            {PRIORITEITEN.map((optie) => <option key={optie.value} value={optie.value}>{optie.label}</option>)}
-          </select>
-        </label>
-
-        <label className={styles.veld}>
-          <span>Categorie</span>
-          <select value={waarden.categorie} onChange={(event) => wijzig('categorie', event.target.value)} disabled={bezig}>
-            {CATEGORIEEN.map((optie) => <option key={optie.value} value={optie.value}>{optie.label}</option>)}
-          </select>
-        </label>
-
         <button type="submit" className={styles.knop} disabled={nietKlaar || !heeftWijzigingen}>
-          {bezig ? 'Bezig…' : 'Wijzigingen opslaan'}
+          {bezig ? 'Bezig…' : 'Status opslaan'}
         </button>
       </form>
 
