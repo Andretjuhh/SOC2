@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 
 import { fetchTicketHistorie } from './api/ticketsApi'
+import TicketBewerken from './TicketBewerken'
 import { PRIORITEIT_STIJL, categorieLabel, formatDatumTijd, initialen, statusLabel } from './ticketLabels'
 import styles from './TicketPage.module.css'
 
@@ -32,7 +33,7 @@ function Gegeven({ label, children }) {
   )
 }
 
-function TicketDetailPanel({ ticket, onClose }) {
+function TicketDetailPanel({ ticket, onClose, onGewijzigd }) {
   const { historie, loading, error } = useTicketHistorie(ticket.ticketID, ticket.laatstGewijzigdOp)
 
   useEffect(() => {
@@ -85,6 +86,8 @@ function TicketDetailPanel({ ticket, onClose }) {
           <p className={styles.tekst}>{ticket.oplossing}</p>
         </section>
       )}
+
+      <TicketBewerken ticket={ticket} onGewijzigd={onGewijzigd} />
 
       <section className={styles.sectie}>
         <h3>Historie</h3>

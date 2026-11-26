@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useState } from "react";
 
-import useAlertData from '../features/alerts/state/useAlertData'
-import AlertClaimAction from '../features/alerts/ownership/AlertClaimAction'
-import CreateTicketDialog from '../features/tickets/CreateTicketDialog'
+import useAlertData from "../features/alerts/state/useAlertData";
+import AlertClaimAction from "../features/alerts/ownership/AlertClaimAction";
+import CreateTicketDialog from "../features/tickets/CreateTicketDialog";
 
 function AlertsPage() {
   const {
@@ -15,17 +15,17 @@ function AlertsPage() {
     claimAlert,
     claimNotice,
     claimingAlertId,
-  } = useAlertData()
-  const [alertVoorTicket, setAlertVoorTicket] = useState(null)
+  } = useAlertData();
+  const [alertVoorTicket, setAlertVoorTicket] = useState(null);
 
   function handleTicketAangemaakt(ticket) {
-    claimAlert(alertVoorTicket.id, ticket)
-    setAlertVoorTicket(null)
+    claimAlert(alertVoorTicket.id, ticket);
+    setAlertVoorTicket(null);
   }
 
   return (
     <section id="alert">
-    <select className="date-range" aria-label="Date range">
+      <select className="date-range" aria-label="Date range">
         <option value="option1">Last 24 hours</option>
         <option value="option2">Last 48 hours</option>
         <option value="option2">Last 7 days</option>
@@ -33,56 +33,113 @@ function AlertsPage() {
       </select>
 
       <section className="panel alerts-panel" id="alerts">
-        {claimNotice && <p role="status" aria-live="polite">{claimNotice}</p>}
+        {claimNotice && (
+          <p role="status" aria-live="polite">
+            {claimNotice}
+          </p>
+        )}
         <div className="alert-filters" aria-label="Filter alerts by severity">
-          {['All events', 'Critical', 'High', 'Medium', 'Low'].map((filter) => (
+          {["All events", "Critical", "High", "Medium", "Low"].map((filter) => (
             <button
-              className={`filter-chip${severityFilter === filter ? ' selected' : ''}`}
+              className={`filter-chip${severityFilter === filter ? " selected" : ""}`}
               key={filter}
               onClick={() => setSeverityFilter(filter)}
               type="button"
               aria-pressed={severityFilter === filter}
             >
-              {filter === 'All events' ? filter : <><i className={`severity-dot ${filter.toLowerCase()}-dot`} />{filter}</>}
+              {filter === "All events" ? (
+                filter
+              ) : (
+                <>
+                  <i className={`severity-dot ${filter.toLowerCase()}-dot`} />
+                  {filter}
+                </>
+              )}
             </button>
           ))}
         </div>
         <div className="table-scroll">
           <table className="alerts-table">
-            <thead><tr><th>EVENT</th><th>SEVERITY</th><th>OWNER</th><th>AFFECTED ASSET</th><th>DETECTED</th><th>CLOSED</th><th>CLAIM</th></tr></thead>
+            <thead>
+              <tr>
+                <th>EVENT</th>
+                <th>SEVERITY</th>
+                <th>OWNER</th>
+                <th>AFFECTED ASSET</th>
+                <th>DETECTED</th>
+                <th>CLOSED</th>
+                <th>CLAIM</th>
+              </tr>
+            </thead>
             <tbody>
               {filteredEvents.map((event) => (
                 <tr key={event.id}>
-                  <td className="event-name-cell"><span className={`event-marker ${event.severity.toLowerCase()}`} /><strong>{event.type}</strong></td>
-                  <td><span className={`severity-badge ${event.severity.toLowerCase()}`}><i className={`severity-dot ${event.severity.toLowerCase()}-dot`} />{event.severity}</span></td>
+                  <td className="event-name-cell">
+                    <span
+                      className={`event-marker ${event.severity.toLowerCase()}`}
+                    />
+                    <strong>{event.type}</strong>
+                  </td>
+                  <td>
+                    <span
+                      className={`severity-badge ${event.severity.toLowerCase()}`}
+                    >
+                      <i
+                        className={`severity-dot ${event.severity.toLowerCase()}-dot`}
+                      />
+                      {event.severity}
+                    </span>
+                  </td>
                   <td className="owner-cell">{event.owner}</td>
                   <td className="asset-cell">{event.target}</td>
                   <td className="time-cell">{event.time}</td>
-                  <td className="time-cell">{event.closedTime ?? '—'}</td>
+                  <td className="time-cell">{event.closedTime ?? "—"}</td>
                   <td className="claim-cell">
                     <AlertClaimAction
                       claimedByYou={event.claimedByYou}
                       claimedByOther={event.isClaimed && !event.claimedByYou}
                       owner={event.owner}
                       claiming={claimingAlertId === event.id}
-                      onClaim={() => claimAlert(event.id)}
+                      onClaim={() => setAlertVoorTicket(event)}
                     />
                   </td>
                 </tr>
               ))}
               {loading && (
-                <tr><td className="empty-state" colSpan="7">Loading alerts…</td></tr>
+                <tr>
+                  <td className="empty-state" colSpan="7">
+                    Loading alerts…
+                  </td>
+                </tr>
               )}
               {!loading && error && (
-                <tr><td className="empty-state" colSpan="7">{error}</td></tr>
+                <tr>
+                  <td className="empty-state" colSpan="7">
+                    {error}
+                  </td>
+                </tr>
               )}
               {!loading && !error && filteredEvents.length === 0 && (
-                <tr><td className="empty-state" colSpan="7">No alerts match your search and filters.</td></tr>
+                <tr>
+                  <td className="empty-state" colSpan="7">
+                    No alerts match your search and filters.
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>
         </div>
-        <div className="table-footer"><span>Showing {filteredEvents.length} of {alerts.length} alerts</span><button type="button" className="pagination-button" disabled>‹</button><button type="button" className="pagination-button" disabled>›</button></div>
+        <div className="table-footer">
+          <span>
+            Showing {filteredEvents.length} of {alerts.length} alerts
+          </span>
+          <button type="button" className="pagination-button" disabled>
+            ‹
+          </button>
+          <button type="button" className="pagination-button" disabled>
+            ›
+          </button>
+        </div>
       </section>
 
       {alertVoorTicket && (
@@ -94,9 +151,17 @@ function AlertsPage() {
         />
       )}
 
-      <footer className="dashboard-footer"><span>Sentinel SOC <span className="footer-divider">·</span> Demo dashboard with sample data</span><span>Last updated just now <i className="status-dot" /></span></footer>
+      <footer className="dashboard-footer">
+        <span>
+          Sentinel SOC <span className="footer-divider">·</span> Demo dashboard
+          with sample data
+        </span>
+        <span>
+          Last updated just now <i className="status-dot" />
+        </span>
+      </footer>
     </section>
-  )
+  );
 }
 
-export default AlertsPage
+export default AlertsPage;

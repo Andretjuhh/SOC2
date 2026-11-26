@@ -335,6 +335,77 @@
   font-size: 11px;
 }
 
+/* Bewerken en afronden */
+.formulier {
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.veld {
+  display: grid;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.veld select,
+.veld textarea {
+  width: 100%;
+  padding: 7px 9px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  background: var(--panel-raised);
+  font: inherit;
+  font-size: 12px;
+}
+
+.veld textarea {
+  resize: vertical;
+  line-height: 1.45;
+}
+
+.veld select:focus,
+.veld textarea:focus {
+  border-color: #d88a47;
+  outline: none;
+}
+
+.formulier .knop {
+  justify-self: start;
+}
+
+.knopAfronden {
+  border-color: #245446;
+  color: #7fd9bf;
+}
+
+.knopAfronden:hover:not(:disabled) {
+  border-color: #2f6e5b;
+}
+
+.fout,
+.succes {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.fout {
+  border: 1px solid #6b2f35;
+  color: #f2a7ad;
+  background: #2a1417;
+}
+
+.succes {
+  border: 1px solid #245446;
+  color: #7fd9bf;
+  background: #12261f;
+}
+
 @media (max-width: 1100px) {
   .indeling {
     grid-template-columns: 1fr;

@@ -142,6 +142,7 @@ function TicketPage() {
             key={geselecteerd.ticketID}
             ticket={geselecteerd}
             onClose={() => setGeselecteerdId(null)}
+            onGewijzigd={herlaad}
           />
         )}
       </div>
