@@ -66,6 +66,64 @@ namespace coreApi.Migrations
                     b.ToTable("Alerts");
                 });
 
+            modelBuilder.Entity("CoreApi.Domain.Case", b =>
+                {
+                    b.Property<int>("CaseID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CaseID"));
+
+                    b.Property<Guid>("AangemaaktDoor")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("AangemaaktOp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("AanvalsTijdlijn")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("AfgeslotenOp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Beschrijving")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("KlantID")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Prioriteit")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("RootCause")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Titel")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<byte[]>("Versie")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.HasKey("CaseID");
+
+                    b.HasIndex("KlantID");
+
+                    b.ToTable("Cases");
+                });
+
             modelBuilder.Entity("CoreApi.Domain.Gebruiker", b =>
                 {
                     b.Property<Guid>("Id")
@@ -247,9 +305,15 @@ namespace coreApi.Migrations
                     b.Property<DateTime?>("AfgerondOp")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("AlertID")
+                        .HasColumnType("int");
+
                     b.Property<string>("Beschrijving")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("CaseID")
+                        .HasColumnType("int");
 
                     b.Property<string>("Categorie")
                         .IsRequired()
@@ -284,6 +348,12 @@ namespace coreApi.Migrations
                         .HasColumnType("rowversion");
 
                     b.HasKey("TicketID");
+
+                    b.HasIndex("AlertID")
+                        .IsUnique()
+                        .HasFilter("[AlertID] IS NOT NULL");
+
+                    b.HasIndex("CaseID");
 
                     b.HasIndex("KlantID");
 
@@ -420,6 +490,17 @@ namespace coreApi.Migrations
                     b.Navigation("Klant");
                 });
 
+            modelBuilder.Entity("CoreApi.Domain.Case", b =>
+                {
+                    b.HasOne("CoreApi.Domain.Klant", "Klant")
+                        .WithMany()
+                        .HasForeignKey("KlantID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Klant");
+                });
+
             modelBuilder.Entity("CoreApi.Domain.Gebruiker", b =>
                 {
                     b.HasOne("CoreApi.Domain.Klant", "Klant")
@@ -440,11 +521,25 @@ namespace coreApi.Migrations
 
             modelBuilder.Entity("CoreApi.Domain.Ticket", b =>
                 {
+                    b.HasOne("CoreApi.Domain.Alert", "Alert")
+                        .WithMany()
+                        .HasForeignKey("AlertID")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("CoreApi.Domain.Case", "Case")
+                        .WithMany("Tickets")
+                        .HasForeignKey("CaseID")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("CoreApi.Domain.Klant", "Klant")
                         .WithMany()
                         .HasForeignKey("KlantID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Alert");
+
+                    b.Navigation("Case");
 
                     b.Navigation("Klant");
                 });
@@ -500,6 +595,11 @@ namespace coreApi.Migrations
                         .HasForeignKey("RollenRolID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("CoreApi.Domain.Case", b =>
+                {
+                    b.Navigation("Tickets");
                 });
 
             modelBuilder.Entity("CoreApi.Domain.Gebruiker", b =>

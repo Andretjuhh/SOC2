@@ -19,5 +19,14 @@ public sealed class TicketConfiguration : IEntityTypeConfiguration<Ticket>
 
         builder.HasOne(ticket => ticket.Klant).WithMany()
             .HasForeignKey(ticket => ticket.KlantID).OnDelete(DeleteBehavior.Restrict);
+
+        // Eén alert levert hoogstens één ticket op
+        builder.HasOne(ticket => ticket.Alert).WithMany()
+            .HasForeignKey(ticket => ticket.AlertID).OnDelete(DeleteBehavior.Restrict);
+        builder.HasIndex(ticket => ticket.AlertID).IsUnique().HasFilter("[AlertID] IS NOT NULL");
+
+        // Een case heeft meerdere tickets, een ticket hoort bij hoogstens één case
+        builder.HasOne(ticket => ticket.Case).WithMany(zaak => zaak.Tickets)
+            .HasForeignKey(ticket => ticket.CaseID).OnDelete(DeleteBehavior.Restrict);
     }
 }

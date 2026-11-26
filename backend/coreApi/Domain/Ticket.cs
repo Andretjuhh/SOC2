@@ -51,6 +51,15 @@ public class Ticket
 
     public DateTime? AfgerondOp { get; set; }
 
+    // Uit welke alert is dit ticket ontstaan (leeg bij een handmatig ticket)
+    public int? AlertID { get; set; }
+    public Alert? Alert { get; set; }
+
+    // Naar welke case is dit ticket gepromoveerd (leeg = niet geëscaleerd).
+    // "Geëscaleerd naar case" wordt hiervan afgeleid, het is geen aparte status.
+    public int? CaseID { get; set; }
+    public Case? Case { get; set; }
+
     
     // Versienummer voor gelijktijdig bewerken. SQL Server verandert dit automatisch bij elke wijziging.
     public byte[] Versie { get; set; } = [];
